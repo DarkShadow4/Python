@@ -1,0 +1,2 @@
+isles = input()
+years = input()
