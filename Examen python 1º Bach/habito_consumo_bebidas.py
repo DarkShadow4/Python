@@ -7,6 +7,11 @@ def get_bebida_alcoholica_mas_consumida(bebidas, alcohol):
             max = True
             return i[0]
 
+# def get_pueblo_mayor_consumo(assigned):
+#     alcohol_total =
+#     for i in assigned:
+
+
 bebidas = [0, 0, 0, 0, 0, 0, 0, 10]
 # for n_pueblo in range(1):
 #     data = ""
@@ -27,6 +32,8 @@ alcohol = [True, True, True, True, True, True, True, True]
 #     if data != "FIN":
 #         if alcohol[data] not True:
 #             alcohol.append(int(data)-1)
+
+
 
 print "El tipo de bebida mas bebida es la:", bebidas.index(max(bebidas))+1
 print "El tipo de bebida con alcohol mas consumida es la:", get_bebida_alcoholica_mas_consumida(bebidas, alcohol)
