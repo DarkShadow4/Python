@@ -26,27 +26,30 @@ def get_pueblo_mayor_consumo(pueblos, alchol):
     comparacion = list(sorted(zip(num_pueblo, alcohol_por_pueblo), key=lambda i:i[1], reverse = True))
     return comparacion[0][0]
 
-pueblos = [[0, 0, 0, 0, 0, 150, 20, 30], [0, 0, 0, 0, 0, 120, 0, 10], [0, 0, 0, 6000, 0, 150, 20, 30], [0, 0, 4000, 0, 0, 6150, 20, 30], [0, 20, 4000, 2000, 0, 6150, 20, 30]]
-# for n_pueblo in range(1):
-#     data = ""
-#     print "Pueblo", n_pueblo+1
-#     bebidas = [0, 0, 0, 0, 0, 0, 0, 0]
-#     while data != "FIN":
-#         data = raw_input()
-#         if data != "FIN":
-#             tipo_bebida, litros = data.split(" ")
-#             tipo_bebida = int(tipo_bebida)
-#             litros = int(litros)
-#             bebidas[tipo_bebida-1] += litros
-#     pueblos.append(bebidas)
+pueblos = []
+for n_pueblo in range(20):
+    data = ""
+    print "Pueblo", n_pueblo+1
+    bebidas = [0, 0, 0, 0, 0, 0, 0, 0]
+    while data != "FIN":
+        data = raw_input()
+        if data != "FIN":
+            tipo_bebida, litros = data.split(" ")
+            tipo_bebida = int(tipo_bebida)
+            litros = int(litros)
+            bebidas[tipo_bebida-1] += litros
+    pueblos.append(bebidas)
 
-alcohol = [True, True, True, True, True, False, True, True]
-# data = ""
-# while data != "FIN":
-#     data = raw_input()
-#     if data != "FIN":
-#         if alcohol[data] not True:
-#             alcohol.append(int(data)-1)
+alcohol = [False, False, False, False, False, False, False, False]
+data = ""
+while data != "FIN":
+    data = raw_input()
+    if data != "FIN":
+        data = int(data)
+        if alcohol[data] != True:
+            alcohol[data] = True
+    else:
+        print "No mas alcohol"
 
 bebidas = get_total_bebidas(pueblos)
 
