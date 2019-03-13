@@ -54,19 +54,25 @@ while end == False:
         ys = raw_input().split(" ")
     except EOFError:
         end = True
+    else:
+        try:
+            heights = raw_input().split(" ")
+        except EOFError:
+            end = True
+        else:
+            try:
+                country = create_country(heights)
+            except ValueError:
+                end = True
 
-    try:
-        heights = raw_input().split(" ")
-    except EOFError:
-        end = True
+                try:
+                    sea_levels = raw_input().split(" ")
+                except EOFError:
+                    end = True
+                    sea_levels = []
 
-    try:
-        sea_levels = raw_input().split(" ")
-    except EOFError:
-        end = True
-
-    country = create_country(heights)
-    for sea_level in sea_levels:
-        country, nislas =analize_country(country, int(sea_level))
-        print nislas,
-    print ""
+    if end != True:
+        for sea_level in sea_levels:
+            country, nislas =analize_country(country, int(sea_level))
+            print nislas,
+        print ""
