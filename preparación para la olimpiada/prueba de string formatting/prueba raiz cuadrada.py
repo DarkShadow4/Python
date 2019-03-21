@@ -1,0 +1,14 @@
+n = input()
+raiz = n**(0.5)
+p = 0
+print "la raiz cuadrada de {0} es: {1:.{p}f} con precision {p}".format(n, raiz, p=p)
+p = 1
+print "la raiz cuadrada de {0} es: {1:.{p}f} con precision {p}".format(n, raiz, p=p)
+p = 2
+print "la raiz cuadrada de {0} es: {1:.{p}f} con precision {p}".format(n, raiz, p=p)
+p = 3
+print "la raiz cuadrada de {0} es: {1:.{p}f} con precision {p}".format(n, raiz, p=p)
+p = 4
+print "la raiz cuadrada de {0} es: {1:.{p}f} con precision {p}".format(n, raiz, p=p)
+p = 5
+print "la raiz cuadrada de {0} es: {1:.{p}f} con precision {p}".format(n, raiz, p=p)
