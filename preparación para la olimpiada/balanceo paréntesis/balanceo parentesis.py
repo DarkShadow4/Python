@@ -8,7 +8,7 @@ def comprobar_parentesis(frase):
     for c in frase:
         if c == "(":
             parentesis_sin_cerrar += 1
-        elif c== ")":
+        elif c== ")" and parentesis_sin_cerrar < 1:
             parentesis_sin_cerrar -= 1
     if parentesis_sin_cerrar != 0:
         return False
