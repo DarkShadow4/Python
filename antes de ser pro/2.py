@@ -7,4 +7,3 @@ if num2>num1:
 	while num3 <num2:
 		print num3
 		num3 = num3+1
-		
