@@ -36,7 +36,7 @@ def spawnear_zombies(mapa, num_zombies):
         zy = random.randint(0, len(mapa)-1)
         if mapa[zy][zx] == 0:
             mapa[zy][zx] = 1
-            zombies.append([zy, zx])
+            zombies.append(str(str(zy) + " " + str(zx)))
             i += 1
     return zombies
 
@@ -71,9 +71,7 @@ def comprobar_movimiento(mapa, jx, jy, movimiento, avance, zombies):
         else:
             if mapa[jy-(avance//2)][jx] == 1:
                 mapa[jy-(avance//2)][jx] = 0
-                print (zombies)
-                zombies.remove([jy-avance//2, jx])
-                print (zombies)
+                del zombies[zombies.index(str(jy-avance//2) + " " + str(jx))]
             mapa[jy][jx] = 0
             mapa[jy-avance][jx] = 2
             jy -= avance
@@ -85,9 +83,7 @@ def comprobar_movimiento(mapa, jx, jy, movimiento, avance, zombies):
         else:
             if mapa[jy][jx-(avance//2)] == 1:
                 mapa[jy][jx-(avance//2)] = 0
-                print (zombies)
-                zombies.remove([jy, jx-avance//2])
-                print (zombies)
+                del zombies[zombies.index(str(jy) + " " + str(jx-avance//2))]
             mapa[jy][jx] = 0
             mapa[jy][jx-avance] = 2
             jx -= avance
@@ -99,9 +95,7 @@ def comprobar_movimiento(mapa, jx, jy, movimiento, avance, zombies):
         else:
             if mapa[jy+(avance//2)][jx] == 1:
                 mapa[jy+(avance//2)][jx] = 0
-                print (zombies)
-                zombies.remove([jy+avance//2, jx])
-                print (zombies)
+                del zombies[zombies.index(str(jy+avance//2) + " " + str(jx))]
             mapa[jy][jx] = 0
             mapa[jy+avance][jx] = 2
             jy += avance
@@ -113,19 +107,17 @@ def comprobar_movimiento(mapa, jx, jy, movimiento, avance, zombies):
         else:
             if mapa[jy][jx+(avance//2)] == 1:
                 mapa[jy][jx+(avance//2)] = 0
-                print (zombies)
-                print(zombies.index([jy, jx+avance//2]))
-                zombies.remove([jy, jx+avance//2])
-                print (zombies)
+                del zombies[zombies.index(str(jy) + " " + str(jx+avance//2))]
             mapa[jy][jx] = 0
             mapa[jy][jx+avance] = 2
             jx += avance
+    print(len(zombies))
+    print(zombies)
     return valido, jx, jy
 
 def mover_hacia_jugador(mapa, jx, jy, zombie):
     # Quito el zombie para moverlo
-    zx = zombie[1]
-    zy = zombie[0]
+    zy, zx = map(int, zombie.split())
     mapa[zy][zx] = 0
     # Se mueve horizontalmente
     if jx > zx:
@@ -138,25 +130,30 @@ def mover_hacia_jugador(mapa, jx, jy, zombie):
     elif jy < zy:
         zy -= 1
     # Vuelvo a poner el zombie pero en el lugar correcto
-    zombie[1] = zx
-    zombie[0] = zy
+    zombie = str(str(zy) + " " + str(zx))
     mapa[zy][zx] = 1
     if zx == jx and zy == jy:
-        return "muere"
-    return ""
+        return "muere", zombie
+    return "", zombie
 
 def mover_zombies(mapa, jx, jy, zombies):
     if not zombies:
         return "gana"
-    for zombie in zombies:
-        resultado = mover_hacia_jugador(mapa, jx, jy, zombie)
-    zombies = set(tuple(zombie) for zombie in zombies)
-    
-    zombies = list(list(zombie) for zombie in zombies)
-    return resultado
+
+    for zombie in range(len(zombies)):
+        resultado, nzombie = mover_hacia_jugador(mapa, jx, jy, zombies[zombie])
+        zombies[zombie] = nzombie
+    print("Paso a set:", end=" ")
+    print(zombies)
+    zombies = set(zombies)
+    print("Paso a lista", end=" ")
+    print(zombies)
+    zombies = list(zombies)
+    print("Queda:", end=" ")
+    print(zombies)
+    return resultado, zombies
 
 def mover(mapa, jx, jy, zombies):
-    print(zombies   )
     #pido movimiento
     movimiento = pedir_movimiento()
     #si se pulsa mayus, el avance es el doble
@@ -168,14 +165,14 @@ def mover(mapa, jx, jy, zombies):
     move, jx, jy = comprobar_movimiento(mapa, jx, jy, movimiento, avance, zombies)
     if move != "muere":
         if move:
-            resultado = mover_zombies(mapa, jx, jy, zombies)
+            resultado, zombies = mover_zombies(mapa, jx, jy, zombies)
             if resultado:
-                return False, jx, jy
-            return True, jx, jy
+                return False, jx, jy, zombies
+            return True, jx, jy, zombies
         else:
-            return True, jx, jy
+            return True, jx, jy, zombies
     else:
-        return False, jx, jy
+        return False, jx, jy, zombies
 
 
 
@@ -185,7 +182,10 @@ continuar = True
 mapa, jx, jy, zombies = generar_partida()
 while continuar:
     mostrar_mapa(mapa)
-    continuar, jx, jy = mover(mapa, jx, jy, zombies)
+    try:
+        continuar, jx, jy, zombies = mover(mapa, jx, jy, zombies)
+    except ValueError:
+        continuar = False
         # if platform.system() == 'Windows':
         #     subprocess.call("cls", shell=True)
         # elif platform.system() == 'Linux':
