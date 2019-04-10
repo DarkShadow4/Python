@@ -1,6 +1,7 @@
-# from __future__ import print_function #python2
+from __future__ import print_function # Python2
 import random, getch, subprocess, platform
-from statistics import mean
+# from statistics import mean # Python3
+from numpy import mean # Python 2
 
 def crear_mapa(w, h):
     mapa = []
@@ -42,8 +43,8 @@ def spawnear_zombies(mapa, num_zombies):
 
 def generar_partida():
     # Pido las dimensiones del mapa y las convierto en int
-    # h, w = map(int, raw_input().split()) #python2
-    h, w = map(int, input().split()) #python3
+    h, w = map(int, raw_input().split()) #python2
+    # h, w = map(int, input().split()) #python3
     # Creo el mapa
     mapa = crear_mapa(w, h)
     #spawneo el spawnear_jugador
@@ -174,7 +175,8 @@ def mover(mapa, jx, jy, zombies):
     else:
         return False, jx, jy, zombies
 
-
+def comprobar_muerte(mapa):
+    return any(2 in fila for fila in mapa)
 
 # Establezco la semilla random con su valor por defecto, es decir, el tiempo del sistema
 random.seed()
@@ -190,6 +192,8 @@ while continuar:
         #     subprocess.call("cls", shell=True)
         # elif platform.system() == 'Linux':
         # subprocess.call("clear")
+    if continuar:
+        continuar = comprobar_muerte(mapa)
 mostrar_mapa(mapa)
 if zombies:
     print("Lo siento pero has muerto")
