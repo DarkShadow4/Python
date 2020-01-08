@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 elementos={
     0:" ",
     1:"o",
@@ -134,76 +132,7 @@ def tirar(tablero, jugador, columna):
 
 #### IA
 
-# TODO: Implementar rangos de predicción 5, 10, ...
-
-def value(tablero):
-    """
-    Función que valora lo favorable que es el tablero para la IA
-    """
-    # Primero cuento el número de veces que el j1 o j2 tiene 3 fichas seguidas que no estén bloqueadas
-    j12_3_f = {
-        1:0
-        2:0
-    }
-
-    # three_free4j1 = [1, 1, 1, 0]
-    # three_free4j2 = [2, 2, 2, 0]
-
-    n = range(len(tablero))
-    for fila in n:
-        for columna in n:
-
-            if columna+3 < n-3: # Horizontal [i, i, i, 0]
-                if 0 != tablero[fila][columna] == tablero[fila][columna+1] == tablero[fila][columna+2] and tablero[fila][columna+3] == 0:
-                    j12[tablero[fila][columna]] += 1
-
-            if fila+3 < n-3: # Vertical [i, i, i, 0]
-                if 0 != tablero[fila][columna] == tablero[fila+1][columna] == tablero[fila+2][columna] and tablero[fila+3][columna] == 0:
-                    j12[tablero[fila][columna]] += 1
-
-            if columna-3 > 0: # Horizontal [0, i, i, i]
-                if 0 != tablero[fila][columna] == tablero[fila][columna-1] == tablero[fila][columna-2] and tablero[fila][columna-3] == 0:
-                    j12[tablero[fila][columna]] += 1
-
-            if fila-3 > 0: # Vertical [0, i, i, i]
-                if 0 != tablero[fila][columna] == tablero[fila-1][columna] == tablero[fila-2][columna] and tablero[fila-3][columna] == 0:
-                    j12[tablero[fila][columna]] += 1
-
-            #### Diagonal
-            ### Arriba
-            ## Izquierda
-            # [i, i, i, 0]
-
-            # [0, i, i, i]
-
-            ## Derecha
-            # [i, i, i, 0]
-
-            # [0, i, i, i]
-
-            ### Abajo
-            ## Derecha
-            # [i, i, i, 0]
-
-            # [0, i, i, i]
-
-            ## Izquierda
-            # [i, i, i, 0]
-
-            # [0, i, i, i]
-
-    pass
-
- # ·---·---·---·---·
- # |   |   |   |   |
- # ·---·---·---·---·
- # |   |   |   |   |
- # ·---·---·---·---·
- # |   |   |   |   |
- # ·---·---·---·---·
- # |   |   |   |   |
- # ·---·---·---·---·
-
+# TODO: Se queda en bucle y tarda demasiado en pensar, asi que hay que solucionarlo
 
 def IA1(tablero):
     """
