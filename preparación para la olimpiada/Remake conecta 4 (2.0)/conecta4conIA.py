@@ -173,12 +173,20 @@ def value(tablero):
             ### Arriba
             ## Izquierda
             # [i, i, i, 0]
-
-            # [0, i, i, i]
-
+            if columna-3 > 0 and fila-3 >0:
+                if 0 != tablero[fila-3][columna-3] == tablero[fila-2][columna-2] == tablero[fila-1][columna-1] and tablero[fila][columna] == 0:
+                    j12[tablero[fila][columna]] += 1
+            # # [0, i, i, i]
+            #     if 0 != tablero[fila][columna] == tablero[fila-1][columna-1] == tablero[fila-2][columna-2] and tablero[fila-3][columna-3] == 0:
+            #         j12[tablero[fila][columna]] += 1
             ## Derecha
             # [i, i, i, 0]
-
+            if columna-3 > 0 and fila-3 >0:
+                if 0 != tablero[fila-3][columna-3] == tablero[fila-2][columna-2] == tablero[fila-1][columna-1] and tablero[fila][columna] == 0:
+                    j12[tablero[fila][columna]] += 1
+            # # [0, i, i, i]
+            #     if 0 != tablero[fila][columna] == tablero[fila-1][columna-1] == tablero[fila-2][columna-2] and tablero[fila-3][columna-3] == 0:
+            #         j12[tablero[fila][columna]] += 1
             # [0, i, i, i]
 
             ### Abajo
