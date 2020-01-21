@@ -142,7 +142,7 @@ def value(tablero):
     """
     # Primero cuento el número de veces que el j1 o j2 tiene 3 fichas seguidas que no estén bloqueadas
     j12_3_f = {
-        1:0
+        1:0,
         2:0
     }
 
