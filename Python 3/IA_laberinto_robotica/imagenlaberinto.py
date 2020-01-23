@@ -27,13 +27,28 @@ def muestra(maze):
         print("\n", end="")
 
 def getdims(route):
-    for i in range(len(route)):
+    n = len(route)
+    i = 0
+    while i < n:
+
         if route[i:i+2] == ["R", "L"]: # 0 1 || 1 2 || 2 len
+            print("R L => S")
             if i == 0:
                 route = ["S"] + route[i+2::]
             else:
                 route = route[:i+1] + ["S"] + route[i+2::]
+            n = len(route) # actualizo la longitud
+        print(route[i] != ["R"] and route[i] != ["L"])
+        while 0 <= i < n and route[i] != ["R"] and route[i] != ["L"]:
+            print("{0} => _".format(route[i]))
+            if i == 0:
+                route = route[i+1:]
+            else:
+                route = route[:i] + route[i+1::]
+            n = len(route) # actualizo la longitud
         print(route)
+        i += 1
+
     print("\nFINAL route for size: {0}".format(route))
     size = route.count("R")
     return(size)
@@ -46,3 +61,4 @@ print (size)
 # muestra(maze)
 
 # Ruta lab_prueba_dibujo: R L U R R D D L L D D D R L U U U R D D R D R L U L U U R D R D U L U R R D D D R U D L U U U U U R D R D L D R D D R
+# ['R', 'R', 'R', 'R', 'R', 'R', 'R', 'R', 'R']
