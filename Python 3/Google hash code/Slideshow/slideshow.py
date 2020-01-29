@@ -65,6 +65,16 @@ def createShow(images):
     # when changing the topic of the images because 2 images in the same slide
     # having no common tags are not penalized
 
+    # Gonna try to solve the order problem sorting the tags of each slide
+    # and then sorting the slides based on the first tag, then i will try not
+    # basing it on the first but compare and get the best order that i can get
+    # sorting the based on the i-est tag getting more than one possible order
+    # so i can select the one that gives the highest puntuation
+
+    # I could sort them based on a dijkstra variation assigning the value of
+    # each s1 s2 pair to the connection assigned and look for the highest
+    # cost(value) instead of the lowest
+
 def ShowValue(slides):
     """Function that given a SlideShow returns the points that it would get"""
     points = 0

@@ -30,21 +30,25 @@ def getdims(route):
     n = len(route)
     i = 0
     while i < n:
-
+        print (i)
         if route[i:i+2] == ["R", "L"]: # 0 1 || 1 2 || 2 len
-            print("R L => S")
+            print("R L => _")
             if i == 0:
-                route = ["S"] + route[i+2::]
+                # route = ["S"] + route[i+2::]
+                route = route[i+2::]
             else:
-                route = route[:i+1] + ["S"] + route[i+2::]
+                # route = route[:i+1] + ["S"] + route[i+2::]
+                route = route[:i+1] + route[i+2::]
             n = len(route) # actualizo la longitud
-        print(route[i] != ["R"] and route[i] != ["L"])
-        while 0 <= i < n and route[i] != ["R"] and route[i] != ["L"]:
+        # print(route[i] != ["R"] and route[i] != ["L"])
+        print(i)
+        if route[i] == "D" or route[i] == "U":
             print("{0} => _".format(route[i]))
+            if 0 < i < n:
+                route = route[:i+1] + route[i+2::]
             if i == 0:
                 route = route[i+1:]
-            else:
-                route = route[:i] + route[i+1::]
+            print(route)
             n = len(route) # actualizo la longitud
         print(route)
         i += 1
