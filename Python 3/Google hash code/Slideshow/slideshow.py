@@ -16,8 +16,9 @@ class Image(object):
 class Slide(object):
     """A slide containing one horizontal or vertical image or 2 vertical images"""
 
-    def __init__(self, content, tags):
+    def __init__(self, slide_id, content, tags):
         super(Slide, self).__init__()
+        self.slide_id = slide_id
         self.content = content # a list with the image or images contained
         self.tags = tags
 
@@ -45,7 +46,27 @@ class Slide(object):
             print(tag, end=" ")
         print()
 
+def dijkstra_highest_value(ss_transition_values):
+                                    # as i am not forced to start from one
+                                    # particular image or slide, i will take the
+                                    # most profitable start
+    """A dijkstra variation that seeks for the most profitable slide order"""
+    pass
 
+def create_adjacency_table(slides):
+    """This is used in order to prepare the adjacency table for the dijkstra
+    variation that gets the best order for the slides of the slide show"""
+    adj_table = []
+    i = 0
+    while i < len(slides):
+        slide_i_adj_values = []
+        j = 0
+        while j < len(slides):
+            slide_i_adj_values.append(pair_value(slides[i], slides[j]))
+            j += 1
+        adj_table.append(slide_i_adj_values)
+        i += 1
+    return(adj_table)
 
 
 def createShow(images):
@@ -75,18 +96,29 @@ def createShow(images):
     # each s1 s2 pair to the connection assigned and look for the highest
     # cost(value) instead of the lowest
 
+def pair_value(slide1, slide2):
+    """Function that given a pair of slides returns the points that it would get"""
+    common_tags = len(slide1.tags.intersection(slide2.tags))
+    in_S1_not_in_S2 = len(slide1.tags - slide2.tags)
+    in_S2_not_in_S1 = len(slide2.tags - slide1.tags)
+    points = sorted([common_tags, in_S1_not_in_S2, in_S2_not_in_S1])[0]
+    return(points)
+
 def ShowValue(slides):
     """Function that given a SlideShow returns the points that it would get"""
     points = 0
     if len(slides) >= 2:
         i = 0
         while i < len(slides)-1:
-            common_tags = len(slides[i].tags.intersection(slides[i+1].tags))
-            in_S1_not_in_S2 = len(slides[i].tags - slides[i+1].tags)
-            in_S2_not_in_S1 = len(slides[i+1].tags - slides[i].tags)
-            points += sorted([common_tags, in_S1_not_in_S2, in_S2_not_in_S1])[0]
+            points += pair_value(slides[i], slides[i+1])
             i += 1
     return(points)
+
+
+
+####################
+
+
 
 N = int(input())
 images = []
@@ -98,20 +130,23 @@ for i in range(N):
 slides = []
 verticals = []
 
+slide = 0
 for img in images:
     if img.orientation == "H":
-        slides.append(Slide([img.img_id], img.tags))
+        slides.append(Slide(slide, [img.img_id], img.tags))
+        slide += 1
     else:
         verticals.append(img)
 
 i = 0
 while i < len(verticals):
     if i+1 < len(verticals):
-        slides.append(Slide([verticals[i].img_id, verticals[i+1].img_id], verticals[i].tags.union(verticals[i+1].tags)))
+        slides.append(Slide(slide, [verticals[i].img_id, verticals[i+1].img_id], verticals[i].tags.union(verticals[i+1].tags)))
         i += 2
     else:
-        slides.append(Slide([verticals[i].img_id], verticals[i].tags))
+        slides.append(Slide(slide, [verticals[i].img_id], verticals[i].tags))
         i += 1
+    slide += 1
 
 for slide in slides:
     # slide.typesinfo()
@@ -119,9 +154,29 @@ for slide in slides:
 
 show1 = ShowValue(slides)
 print("The value of the show is: {0}".format(show1))
+
 # for image in images:
 #     image.imprimir()
 
+##############
+
+adj_table = create_adjacency_table(slides)
+print("\nAdjacency table is:")
+i = 0
+print("Slide    ", end="")
+while i < len(adj_table):
+    print("S{0}".format(i), end=" ")
+    i += 1
+print()
+i = 0
+while i < len(adj_table):
+    print("Slide {0}: ".format(i), end="")
+    j = 0
+    while j < len(adj_table[i]):
+        print(adj_table[i][j], end="  ")
+        j += 1
+    print()
+    i += 1
 
 # 4
 # H 3 cat beach sun
