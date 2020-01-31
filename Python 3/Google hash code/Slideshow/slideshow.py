@@ -46,11 +46,36 @@ class Slide(object):
             print(tag, end=" ")
         print()
 
-def dijkstra_highest_value(ss_transition_values):
+def getHighestValue(slides, slides2, start_costs):
+    rest = Diff(slides, slides2)
+    next_slides = [slide for slide in start_costs]
+    highest = []
+    for slide in v:
+        if slide in  next_slides:
+            highest.append(slide, start_costs[slide][0])
+    return (sorted(highest, key=lambda x:x[1])[-1])
+
+def most_profitable(final_costs):
+    shows = [[current, final_costs[current]] for current in final_costs.keys()]
+    return (sorted(shows, key=lambda x:x[1])[-1])
+
+def dijkstra_highest_value(ss_transition_values, slides):
                                     # as i am not forced to start from one
                                     # particular image or slide, i will take the
                                     # most profitable start
     """A dijkstra variation that seeks for the most profitable slide order"""
+    starts_N_puntuations = {}
+    slides2 = []
+    for slide in slides: # trying to start from each slide to get the best start
+        slides2 = [slide]
+        start_costs = get_start_costs(starting_slide)
+        while Diff(slides, slides2) != []:
+            highest_value = getHighestValue(slides, slides2, start_costs)
+            slides2.append(highest_value[0])
+            for next_slide in sorted(Diff(slides, slides2)):
+                if start_costs[next_slide][0] < start_costs[highest_value[0]][0] + last_step_cost():
+                    start_costs[next_slide] = [start_costs[highest_value[0]][0] + last_step_cost(), highest_value[0]]
+        starts_N_puntuations[slide] = most_profitable(start_costs)
     pass
 
 def create_adjacency_table(slides):
@@ -155,9 +180,6 @@ for slide in slides:
 show1 = ShowValue(slides)
 print("The value of the show is: {0}".format(show1))
 
-# for image in images:
-#     image.imprimir()
-
 ##############
 
 adj_table = create_adjacency_table(slides)
@@ -177,6 +199,13 @@ while i < len(adj_table):
         j += 1
     print()
     i += 1
+
+####
+
+slide_ids = [slide.slide_id for slide in slides]
+dijkstra_highest_value(adj_table, slide_ids)
+
+####
 
 # 4
 # H 3 cat beach sun
