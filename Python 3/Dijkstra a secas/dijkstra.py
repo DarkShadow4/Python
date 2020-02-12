@@ -10,18 +10,17 @@ def minimo(D):
 
 def  dijkstra(n,c,v0):
     # D[v]:  coste  del  camino  especial  optimo a v
-    D = [c[(v0 ,v)] if v!=v0 else 0 for v in  range(n)]
+    # D = [c[(v0 ,v)] if v!=v0 else 0 for v in  range(n)]
+    D = c[v0] # D son los pesos de v0 a cada vértice
     # P[v]:  vertice  anterior  en el  camino  especial  optimo a v
+    # como desde v0 a cada vértice hay camino, sin optimizar,
+    # el camino a cada vértice es el camino directo independientemente del peso
     P = [v0 for v in range(n)]
-    C = [v for v in range(n) if v!=v0]
-    while  len(C) > 0:
-        minimo = 1e+100 # infinito
-        for v in C:
-            if D[v] < minimo:
-                minimo = D[v]
-                w=v
-                C.remove(w)
-        for v in C: # actualizacion  de D y P
+    C = [v if v!=v0 for v in range(n)] # C es el vector de vértices sin optimizar
+    while len(C) > 0:
+        min = minimo(D)
+        C.remove(min)
+        for v in C: # actualizacion  de D y P # # TODO:  cambiar
             if (w,v) in c and D[w] + c[(w,v)] < D[v]:
                 D[v] = D[w] + c[(w,v)]
                 P[v] = w
