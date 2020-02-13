@@ -60,7 +60,8 @@ def  dijkstra(n,c,v0):
     """n es el numero de nodos, c es la tabla de adyacencias y v0 es el nodo inicial"""
     # D[v]:  coste  del  camino  especial  optimo a v
     # D = [c[(v0 ,v)] if v!=v0 else 0 for v in  range(n)]
-    D = c[v0] # D son los pesos de v0 a cada vértice
+    D = [c[v0][v] for v in range(n)] # D son los pesos de v0 a cada vértice
+    # print(id(D))
     # P[v]:  vertice  anterior  en el  camino  especial  optimo a v
     # como desde v0 a cada vértice hay camino, sin optimizar,
     # el camino a cada vértice es el camino directo independientemente del peso
@@ -70,7 +71,7 @@ def  dijkstra(n,c,v0):
     while len(C) > 0:
         max = maximo(D, C)
         C.remove(max)
-        for v in C: # actualizacion  de D y P # # TODO:  cambiar
+        for v in C: # actualizacion  de D y P
             if c[max][v] + D[max] > D[v]:
                 D[v] = D[max] + c[max][v]
                 P[v] = max
@@ -79,11 +80,14 @@ def  dijkstra(n,c,v0):
 def obtener_show(adj_table):
     """Dado el slideshow devuelve el mejor slideshow posible con las slides"""
     n = len(adj_table)
-    print (adj_table)
     best = 0
     mx = 0
     for v0 in range(n):
         D, P = dijkstra(n, adj_table, v0)
+        print("D: ", end="")
+        print(D)
+        print("P: ", end="")
+        print(P)
         if max(D) > mx:
             best = v0 # guardo el vertice inicial que puede dar una puntuación máxima más alta
             mx = max(D)
@@ -94,11 +98,8 @@ def obtener_show(adj_table):
     last = D.index(max(D))
     show = [last]
     while last != best:
-        print("last = {0} best = {1}".format(last, best))
         show.append(P[last])
         last = P[last]
-    print(show)
-    print(last)
     return (show)
 
 def create_adjacency_table(slides):
@@ -177,7 +178,7 @@ def createShow(images):
     # cost(value) instead of the lowest
     adj_table = create_adjacency_table(slides)
 
-    return(obtener_show(adj_table))
+    return(obtener_show(adj_table)[::-1])
 
 def pair_value(slide1, slide2):
     """Function that given a pair of slides returns the points that it would get"""
@@ -186,6 +187,25 @@ def pair_value(slide1, slide2):
     in_S2_not_in_S1 = len(slide2.tags - slide1.tags)
     points = sorted([common_tags, in_S1_not_in_S2, in_S2_not_in_S1])[0]
     return(points)
+
+def show_adj_table(adj_table):
+    print("\nAdjacency table is:")
+    i = 0
+    print("Slide    ", end="")
+    while i < len(adj_table):
+        print("S{0}".format(i), end=" ")
+        i += 1
+    print()
+    i = 0
+    while i < len(adj_table):
+        print("Slide {0}: ".format(i), end="")
+        j = 0
+        while j < len(adj_table[i]):
+            print(adj_table[i][j], end="  ")
+            j += 1
+        print()
+        i += 1
+
 
 def ShowValue(slides):
     """Function that given a SlideShow returns the points that it would get"""
@@ -196,6 +216,10 @@ def ShowValue(slides):
             points += pair_value(slides[i], slides[i+1])
             i += 1
     return(points)
+
+def sortSlideShow(show, slides):
+    slideShow = [slides[s] for s in show]
+    return slideShow
 
 ####################
 
@@ -229,36 +253,22 @@ while i < len(verticals):
         i += 1
     slide += 1
 
-for slide in slides:
-    # slide.typesinfo()
-    slide.showSlide()
 show1 = ShowValue(slides)
 print("The value of the show is: {0}".format(show1))
 
 ##############
 
 adj_table = create_adjacency_table(slides)
-print("\nAdjacency table is:")
-i = 0
-print("Slide    ", end="")
-while i < len(adj_table):
-    print("S{0}".format(i), end=" ")
-    i += 1
-print()
-i = 0
-while i < len(adj_table):
-    print("Slide {0}: ".format(i), end="")
-    j = 0
-    while j < len(adj_table[i]):
-        print(adj_table[i][j], end="  ")
-        j += 1
-    print()
-    i += 1
+show_adj_table(adj_table)
 
 ####
 
 show = createShow(images)
 print(show)
+slideShow = sortSlideShow(show, slides)
+for slide in slideShow:
+    slide.showSlide()
+print("This show scores: {0} point(s)".format(ShowValue(slideShow)))
 ####
 
 # 4
