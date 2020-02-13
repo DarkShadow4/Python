@@ -9,6 +9,7 @@ def minimo(D):
 
 
 def  dijkstra(n,c,v0):
+	"""n es el numero de nodos, c es la tabla de adyacencias y v0 es el nodo inicial"""
     # D[v]:  coste  del  camino  especial  optimo a v
     # D = [c[(v0 ,v)] if v!=v0 else 0 for v in  range(n)]
     D = c[v0] # D son los pesos de v0 a cada vértice
@@ -21,9 +22,9 @@ def  dijkstra(n,c,v0):
         min = minimo(D)
         C.remove(min)
         for v in C: # actualizacion  de D y P # # TODO:  cambiar
-            if (w,v) in c and D[w] + c[(w,v)] < D[v]:
-                D[v] = D[w] + c[(w,v)]
-                P[v] = w
+            # if (w,v) in c and D[w] + c[(w,v)] < D[v]:
+                D[v] = D[w] + c[v]
+                P[v] = min
     return D,P
 
 tabla = [

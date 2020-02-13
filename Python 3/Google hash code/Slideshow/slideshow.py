@@ -46,37 +46,57 @@ class Slide(object):
             print(tag, end=" ")
         print()
 
-def getHighestValue(slides, slides2, start_costs):
-    rest = Diff(slides, slides2)
-    next_slides = [slide for slide in start_costs]
-    highest = []
-    for slide in v:
-        if slide in  next_slides:
-            highest.append(slide, start_costs[slide][0])
-    return (sorted(highest, key=lambda x:x[1])[-1])
+def minimo(D):
+    minimo = 1e+100
+    min = 0
+    for i in range(len(D)):
+        if D[i] < minimo:
+            minimo = D[i]
+            min = i
+    return (min)
 
-def most_profitable(final_costs):
-    shows = [[current, final_costs[current]] for current in final_costs.keys()]
-    return (sorted(shows, key=lambda x:x[1])[-1])
 
-def dijkstra_highest_value(ss_transition_values, slides):
-                                    # as i am not forced to start from one
-                                    # particular image or slide, i will take the
-                                    # most profitable start
-    """A dijkstra variation that seeks for the most profitable slide order"""
-    starts_N_puntuations = {}
-    slides2 = []
-    for slide in slides: # trying to start from each slide to get the best start
-        slides2 = [slide]
-        start_costs = get_start_costs(starting_slide)
-        while Diff(slides, slides2) != []:
-            highest_value = getHighestValue(slides, slides2, start_costs)
-            slides2.append(highest_value[0])
-            for next_slide in sorted(Diff(slides, slides2)):
-                if start_costs[next_slide][0] < start_costs[highest_value[0]][0] + last_step_cost():
-                    start_costs[next_slide] = [start_costs[highest_value[0]][0] + last_step_cost(), highest_value[0]]
-        starts_N_puntuations[slide] = most_profitable(start_costs)
-    pass
+def  dijkstra(n,c,v0):
+    """n es el numero de nodos, c es la tabla de adyacencias y v0 es el nodo inicial"""
+    # D[v]:  coste  del  camino  especial  optimo a v
+    # D = [c[(v0 ,v)] if v!=v0 else 0 for v in  range(n)]
+    D = c[v0] # D son los pesos de v0 a cada vértice
+    # P[v]:  vertice  anterior  en el  camino  especial  optimo a v
+    # como desde v0 a cada vértice hay camino, sin optimizar,
+    # el camino a cada vértice es el camino directo independientemente del peso
+    P = [v0 for v in range(n)]
+    C = [v for v in range(n) if v!=v0] # C es el vector de vértices sin optimizar
+    while len(C) > 0:
+        min = minimo(D)
+        print ("min = {0}, C = ".format(min), end="")
+        print(C)
+        C.remove(min)
+        for v in C: # actualizacion  de D y P # # TODO:  cambiar
+            if c[min][v] + D[w] > D[v]:
+                D[v] = D[w] + c[min][v]
+                P[v] = min
+    return D,P
+
+def obtener_show(adj_table):
+    """Dado el slideshow devuelve el mejor slideshow posible con las slides"""
+    n = len(adj_table)
+    best = 0
+    mx = 0
+    for v0 in range(n):
+        D, P = dijkstra(n, adj_table, v0)
+        if max(D) > mx:
+            best = v0 # guardo el vertice inicial que puede dar una puntuación máxima más alta
+            mx = max(D)
+    # con el mejor vértice inicial elaboro el orden del slideshow que más puntuación dará
+    D, P = dijkstra(n, adj_table, v0)
+
+    
+    last = D.index(max(D))
+    show = [last]
+    while last != best:
+        show.append(P[last])
+        last = D.index(max(D))
+    return (show)
 
 def create_adjacency_table(slides):
     """This is used in order to prepare the adjacency table for the dijkstra
@@ -98,13 +118,14 @@ def createShow(images):
     """It creates the SlideShow"""
     slides = []
     verticals = []
-
+    i = 0
     for img in images: # horizontal images are always going to be in separate slides
         if img.orientation == "H":
-            slides.append(Slide([img.img_id], img.tags))
+            slides.append(Slide(i, [img.img_id], img.tags))
         else:
             verticals.append(img)
-
+        i += 1
+    
     # Meanwhile, vertical images are the ones that can increase the points a lot
     # so it is important to give coherence to the agrupation or group 2 images
     # that have nothing to do with each other in order to get the minimum loss
@@ -120,6 +141,9 @@ def createShow(images):
     # I could sort them based on a dijkstra variation assigning the value of
     # each s1 s2 pair to the connection assigned and look for the highest
     # cost(value) instead of the lowest
+    adj_table = create_adjacency_table(slides)
+
+    return(obtener_show(adj_table))
 
 def pair_value(slide1, slide2):
     """Function that given a pair of slides returns the points that it would get"""
@@ -138,8 +162,6 @@ def ShowValue(slides):
             points += pair_value(slides[i], slides[i+1])
             i += 1
     return(points)
-
-
 
 ####################
 
@@ -176,7 +198,6 @@ while i < len(verticals):
 for slide in slides:
     # slide.typesinfo()
     slide.showSlide()
-
 show1 = ShowValue(slides)
 print("The value of the show is: {0}".format(show1))
 
@@ -202,8 +223,7 @@ while i < len(adj_table):
 
 ####
 
-slide_ids = [slide.slide_id for slide in slides]
-dijkstra_highest_value(adj_table, slide_ids)
+show = createShow(images)
 
 ####
 
