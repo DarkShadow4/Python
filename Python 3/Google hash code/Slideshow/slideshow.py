@@ -46,14 +46,14 @@ class Slide(object):
             print(tag, end=" ")
         print()
 
-def minimo(D):
-    minimo = 1e+100
-    min = 0
+def maximo(D, C):
+    mAx = -1
+    max_i = 0
     for i in range(len(D)):
-        if D[i] < minimo:
-            minimo = D[i]
-            min = i
-    return (min)
+        if i in C and D[i] > mAx:
+            mAx = D[i]
+            max_i = i
+    return (max_i)
 
 
 def  dijkstra(n,c,v0):
@@ -65,21 +65,21 @@ def  dijkstra(n,c,v0):
     # como desde v0 a cada vértice hay camino, sin optimizar,
     # el camino a cada vértice es el camino directo independientemente del peso
     P = [v0 for v in range(n)]
-    C = [v for v in range(n) if v!=v0] # C es el vector de vértices sin optimizar
+    C = [v for v in range(n)] # C es el vector de vértices sin optimizar
+    C.remove(v0)
     while len(C) > 0:
-        min = minimo(D)
-        print ("min = {0}, C = ".format(min), end="")
-        print(C)
-        C.remove(min)
+        max = maximo(D, C)
+        C.remove(max)
         for v in C: # actualizacion  de D y P # # TODO:  cambiar
-            if c[min][v] + D[w] > D[v]:
-                D[v] = D[w] + c[min][v]
-                P[v] = min
+            if c[max][v] + D[max] > D[v]:
+                D[v] = D[max] + c[max][v]
+                P[v] = max
     return D,P
 
 def obtener_show(adj_table):
     """Dado el slideshow devuelve el mejor slideshow posible con las slides"""
     n = len(adj_table)
+    print (adj_table)
     best = 0
     mx = 0
     for v0 in range(n):
@@ -88,14 +88,17 @@ def obtener_show(adj_table):
             best = v0 # guardo el vertice inicial que puede dar una puntuación máxima más alta
             mx = max(D)
     # con el mejor vértice inicial elaboro el orden del slideshow que más puntuación dará
-    D, P = dijkstra(n, adj_table, v0)
-
-    
+    D, P = dijkstra(n, adj_table, best)
+    D = D[:]
+    P = P[:]
     last = D.index(max(D))
     show = [last]
     while last != best:
+        print("last = {0} best = {1}".format(last, best))
         show.append(P[last])
-        last = D.index(max(D))
+        last = P[last]
+    print(show)
+    print(last)
     return (show)
 
 def create_adjacency_table(slides):
@@ -118,14 +121,45 @@ def createShow(images):
     """It creates the SlideShow"""
     slides = []
     verticals = []
-    i = 0
-    for img in images: # horizontal images are always going to be in separate slides
+#     i = 0
+#     for img in images: # horizontal images are always going to be in separate slides
+#         if img.orientation == "H":
+#             slides.append(Slide(i, [img.img_id], img.tags))
+#         else:
+#             verticals.append(img)
+#         i += 1
+#
+# ###############
+#     last_i = i
+#     i = 0
+#     while i < len(verticals):
+#         if i+1 < len(verticals):
+#             slides.append(Slide(last_i+i, [verticals[i].img_id, verticals[i+1].img_id], verticals[i].tags.union(verticals[i+1].tags)))
+#             i += 2
+#         else:
+#             slides.append(Slide(last_i+i, [verticals[i].img_id], verticals[i].tags))
+#             i += 1
+#         slide += 1
+
+###############
+    slide = 0
+    for img in images:
         if img.orientation == "H":
-            slides.append(Slide(i, [img.img_id], img.tags))
+            slides.append(Slide(slide, [img.img_id], img.tags))
+            slide += 1
         else:
             verticals.append(img)
-        i += 1
-    
+
+    i = 0
+    while i < len(verticals):
+        if i+1 < len(verticals):
+            slides.append(Slide(slide, [verticals[i].img_id, verticals[i+1].img_id], verticals[i].tags.union(verticals[i+1].tags)))
+            i += 2
+        else:
+            slides.append(Slide(slide, [verticals[i].img_id], verticals[i].tags))
+            i += 1
+        slide += 1
+
     # Meanwhile, vertical images are the ones that can increase the points a lot
     # so it is important to give coherence to the agrupation or group 2 images
     # that have nothing to do with each other in order to get the minimum loss
@@ -224,7 +258,7 @@ while i < len(adj_table):
 ####
 
 show = createShow(images)
-
+print(show)
 ####
 
 # 4
