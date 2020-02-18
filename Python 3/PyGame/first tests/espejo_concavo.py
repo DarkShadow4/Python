@@ -61,45 +61,16 @@ while not done:
     # objeto
     y = O[1]-mouse_pos[1]
     s = mouse_pos[0]-O[0]
-    object_pos = (O[0]+s, O[1]-y)
+
+    object_pos = mouse_pos
     object_text = "y = {0}; s = {1}".format(y, s)
     pygame.draw.line(canvas, object_color, (O[0]+s, O[1]), object_pos) # objeto
 
     surface = object_font.render(object_text, antialias, object_color) # datos objeto
     canvas.blit(surface, (mouse_pos[0]+15, mouse_pos[1]-15))
 
-    # TODO: rayos
-    # rayos
-    # Horizontal
-    # ray1 = (255, 0, 0)
-    # pygame.draw.line(canvas, ray1, )
-    # # Hacia F
-    # ray2 = (0, 255, 0)
-    # pygame.draw.line(canvas, ray2, )
-    # Hacia C
-    ray3 = (0, 0, 255)
-    # obtengo el punto donde cortan el espejo y el rayo
-    CObj = (object_pos[0]-C[0], object_pos[1]-C[1])
-    i = False
-    for x in range(O[0]-C[0]):
-        rayo3 = (C[0]+x*CObj[0], C[1]+x*CObj[1])
-        r_y = ((r**2-(x-C[0])**2)**(1/2)) + C[1]
-
-        vec_3 = (rayo3[0].real-C[0], rayo3[1].real-C[0])
-        d3 = (vec_3[0]**2 + vec_3[1]**2)**(1/2)
-        if math.floor(d3) == r:
-            i = (x, r_y.real)
-
-    if i != False:
-        pygame.draw.line(canvas, ray3, C, object_pos)
-        pygame.draw.line(canvas, ray3, object_pos, i)
-
-    # END TODO: rayos
-
-
-
     # imagen
-    if s < 0 and ((1/f)+(1/s)) != 0:
+    if s < 0 and s != -f:
         image_font = pygame.font.SysFont("Arial", 12)
         s_i = int(1/((1/f)+(1/s)))
         y_i = int((s_i/s)*y)
@@ -116,6 +87,37 @@ while not done:
         image_text = "No hay imagen"
         surface = image_font.render(image_text, antialias, image_color) # datos imagen
         canvas.blit(surface, image_pos)
+
+    # TODO: rayos
+    # rayos
+    FObj = (object_pos[0]-F[0], object_pos[1]-F[1])
+    CObj = (object_pos[0]-C[0], object_pos[1]-C[1])
+
+    # Horizontal
+    ray1 = (255, 0, 0)
+    rayo1 = (object_pos[0]+FObj[0]*(r/((FObj[0])**2+(FObj[1])**2)**(1/2)), object_pos[1]+FObj[1]*(r/((FObj[0])**2+(FObj[1])**2)**(1/2)))
+    pygame.draw.line(canvas, ray1, object_pos, rayo1)
+    # pygame.draw.line(canvas, ray1, F, rayo1) # la reflexion del rayo 1
+
+    # Hacia F
+    # ray2 = (0, 255, 0)
+    # rayo2 = (F[0]+FObj[0]*(r/((FObj[0])**2+(FObj[1])**2)**(1/2)), F[1]+FObj[1]*(r/((FObj[0])**2+(FObj[1])**2)**(1/2)))
+    # pygame.draw.line(canvas, ray2, F, rayo2)
+    # pygame.draw.line(canvas, ray2, (object_pos[0], rayo2[1]), rayo2) # la reflexion del rayo 2
+
+    # Hacia C
+    ray3 = (0, 0, 255)
+    # obtengo el punto donde cortan el espejo y el rayo
+    rayo3 = (C[0]+CObj[0]*(r/((CObj[0])**2+(CObj[1])**2)**(1/2)), C[1]+CObj[1]*(r/((CObj[0])**2+(CObj[1])**2)**(1/2)))
+    if rayo3[0] > C[0]:
+        pygame.draw.line(canvas, ray3, C, rayo3)
+
+
+    # END TODO: rayos
+
+
+
+
 
     for event in pygame.event.get():
         if event.type == pygame.KEYDOWN:
