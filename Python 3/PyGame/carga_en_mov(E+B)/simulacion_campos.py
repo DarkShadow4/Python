@@ -47,7 +47,7 @@ class Particula(object):
         self.velocidad = velocidad
 
     def dibujar(self):
-        pygame.draw.circle(canvas, (0, 0, 255), (posicion.x, posicion.y), 10, 1)
+        pygame.draw.circle(canvas, (0, 0, 255), (self.posicion.x, self.posicion.y), 10, 1)
 
 def v1xv2(v1, v2):
     """
@@ -58,7 +58,7 @@ def v1xv2(v1, v2):
     x = ((v1.y*v2.z)-(v1.z*v2.y))
     y = -((v1.x*v2.z)-(v1.z*v2.x))
     z = ((v1.x*v2.y)-(v1.y*v2.x))
-    resultado = (x, y, z)
+    resultado = Vector(x, y, z)
     return(resultado)
 
 def Vec_A2B(A, B, unit=False):
@@ -71,11 +71,11 @@ def dibujar_vector(P_aplicacion, vector, color=(255, 255, 255)):
     else:
         if vector.z > 0:
             pygame.draw.circle(canvas, color, (P_aplicacion.x, P_aplicacion.y), 2, 1)
-            pygame.draw.circle(canvas, color, (P_aplicacion.x, P_aplicacion.y), 3, 1)
+            pygame.draw.circle(canvas, color, (P_aplicacion.x, P_aplicacion.y), 10, 1)
         else:
-            pygame.draw.circle(canvas, color, (P_aplicacion.x, P_aplicacion.y), 3, 1)
-            pygame.draw.line(canvas, color, (P_aplicacion.x-1, P_aplicacion.y-1), (P_aplicacion.x+1, P_aplicacion.y+1))
-            pygame.draw.line(canvas, color, (P_aplicacion.x+1, P_aplicacion.y-1), (P_aplicacion.x-1, P_aplicacion.y+1))
+            pygame.draw.circle(canvas, color, (P_aplicacion.x, P_aplicacion.y), 10, 1)
+            pygame.draw.line(canvas, color, (P_aplicacion.x-7, P_aplicacion.y-7), (P_aplicacion.x+7, P_aplicacion.y+7))
+            pygame.draw.line(canvas, color, (P_aplicacion.x+7, P_aplicacion.y-7), (P_aplicacion.x-7, P_aplicacion.y+7))
 
 
 colores = {
@@ -91,31 +91,48 @@ canvas = pygame.display.set_mode([size, size])
 
 
 posicion = Punto(100, 500, 0)
-# posicion = Punto(math.ceil(size/2), math.ceil(size/2), 0)
-carga=-1.6*(10**-19)
+carga=1.6*(10**-19)
 particula = Particula(carga, posicion, Vector(0, 0, 0))
-# puntos_B = []
+puntos_B = []
 puntos_E = []
 for x in range(1, size):
     for y in range(1, size):
-        if x%150==0 and y%150==0:
+        if x%100==0 and y%100==0:
             puntos_E.append(Punto(x, y, 0))
-#         if (x-5)%10 == 0 and (y-5)%10 == 0:
-#             puntos_E.append(Punto(x-5, y-5, 0))
-#
-# lineas_de_campo = []
-# Del campo electrico
-# for p in puntos_E:
-#     lineas_de_campo.append(Linea_de_campo(p, particula.posicion))
+        if (x-50)%100 == 0 and (y-50)%100 == 0:
+            puntos_B.append(Punto(x-5, y-5, 0))
 
 
 done = False
 while not done:
+    if particula.velocidad.modulo > 0:
+        particula.posicion = Punto(particula.posicion.x + particula.velocidad.x, particula.posicion.y + particula.velocidad.y, particula.posicion.z + particula.velocidad.z)
+        particula = Particula(particula.carga, particula.posicion, particula.velocidad)
     particula.dibujar()
     for p in puntos_E:
         dibujar_vector(p, Vec_A2B(p, particula.posicion, True), colores["E"])
+    for p in puntos_B:
+        if particula.velocidad.modulo > 0:
+            dibujar_vector(p, v1xv2(Vec_A2B(p, particula.posicion, True), particula.velocidad), colores["B"])
     for event in pygame.event.get():
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_q:
                 done = True
+            if event.key == pygame.K_w:
+                particula.velocidad = Vector(particula.velocidad.x, -10, particula.velocidad.z)
+            if event.key == pygame.K_a:
+                particula.velocidad = Vector(-10, particula.velocidad.y, particula.velocidad.z)
+            if event.key == pygame.K_s:
+                particula.velocidad = Vector(particula.velocidad.x, 10, particula.velocidad.z)
+            if event.key == pygame.K_d:
+                particula.velocidad = Vector(10, particula.velocidad.y, particula.velocidad.z)
+            if event.key == pygame.K_CAPSLOCK:
+                particula.velocidad = Vector(0, 0, 0)
+            if event.key == pygame.K_TAB:
+                particula.carga = -particula.carga
+
+
+    pygame.display.flip()
+    pygame.time.delay(100)
+    canvas.fill((0, 0, 0))
     pygame.display.flip()
