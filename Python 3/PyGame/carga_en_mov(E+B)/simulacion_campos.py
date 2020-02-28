@@ -49,15 +49,15 @@ class Particula(object):
     def dibujar(self):
         pygame.draw.circle(canvas, (0, 0, 255), (self.posicion.x, self.posicion.y), 10, 1)
 
-def v1xv2(v1, v2):
+def q__v1xv2(v1, v2, carga):
     """
     |   i    j    k| x = ((v1.y*v2.z)-(v1.z*v2.y))
     |v1.x v1.y v1.z| y = -((v1.x*v2.z)-(v1.z*v2.x))
     |v2.x v2.y v2.z| z = ((v1.x*v2.y)-(v1.y*v2.x))
     """
-    x = ((v1.y*v2.z)-(v1.z*v2.y))
-    y = -((v1.x*v2.z)-(v1.z*v2.x))
-    z = ((v1.x*v2.y)-(v1.y*v2.x))
+    x = ((v1.y*v2.z)-(v1.z*v2.y))*(carga/abs(carga))
+    y = -((v1.x*v2.z)-(v1.z*v2.x))*(carga/abs(carga))
+    z = ((v1.x*v2.y)-(v1.y*v2.x))*(carga/abs(carga))
     resultado = Vector(x, y, z)
     return(resultado)
 
@@ -101,35 +101,25 @@ for x in range(1, size):
             puntos_E.append(Punto(x, y, 0))
         if (x-50)%100 == 0 and (y-50)%100 == 0:
             puntos_B.append(Punto(x-5, y-5, 0))
-
-
 done = False
 while not done:
+    pressed = pygame.key.get_pressed()
+    particula.velocidad = Vector((pressed[pygame.K_d]*5-pressed[pygame.K_a]*5), (pressed[pygame.K_s]*5-pressed[pygame.K_w]*5), pressed[pygame.K_LSHIFT]*5-pressed[pygame.K_LCTRL]*5)
     if particula.velocidad.modulo > 0:
-        particula.posicion = Punto(particula.posicion.x + particula.velocidad.x, particula.posicion.y + particula.velocidad.y, particula.posicion.z + particula.velocidad.z)
-        particula = Particula(particula.carga, particula.posicion, particula.velocidad)
+        particula.posicion = Punto(particula.posicion.x + particula.velocidad.x, particula.posicion.y + particula.velocidad.y, particula.posicion.z + (particula.velocidad.z)*0)
     particula.dibujar()
     for p in puntos_E:
         dibujar_vector(p, Vec_A2B(p, particula.posicion, True), colores["E"])
     for p in puntos_B:
         if particula.velocidad.modulo > 0:
-            dibujar_vector(p, v1xv2(Vec_A2B(p, particula.posicion, True), particula.velocidad), colores["B"])
+            dibujar_vector(p, q__v1xv2(Vec_A2B(p, particula.posicion, True), particula.velocidad, particula.carga), colores["B"])
     for event in pygame.event.get():
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_q:
                 done = True
-            if event.key == pygame.K_w:
-                particula.velocidad = Vector(particula.velocidad.x, -10, particula.velocidad.z)
-            if event.key == pygame.K_a:
-                particula.velocidad = Vector(-10, particula.velocidad.y, particula.velocidad.z)
-            if event.key == pygame.K_s:
-                particula.velocidad = Vector(particula.velocidad.x, 10, particula.velocidad.z)
-            if event.key == pygame.K_d:
-                particula.velocidad = Vector(10, particula.velocidad.y, particula.velocidad.z)
-            if event.key == pygame.K_CAPSLOCK:
-                particula.velocidad = Vector(0, 0, 0)
             if event.key == pygame.K_TAB:
                 particula.carga = -particula.carga
+
 
 
     pygame.display.flip()
