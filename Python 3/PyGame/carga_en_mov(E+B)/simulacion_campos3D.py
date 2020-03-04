@@ -1,13 +1,49 @@
 import pygame, math, projections3D, structures_3D
+class Space(projections3D.Projection):
+    def __init__(self, width, height):
+        super(Space, self).__init__(width, height)
 
-class Punto(object):
-    """docstring for Punto."""
+    def move_all(self, axis, d, pos_particula):
+        if axis in ["x", "y", "x"]:
+            for thing in self.objects.values():
+                thing.move(axis, d, pos_particula)
 
-    def __init__(self, x, y, z):
-        super(Punto, self).__init__()
-        self.x = x
-        self.y = y
-        self.z = z
+    def run(self):
+        """Create a pygame screen until it is closed."""
+        key_to_function = {
+            pygame.K_LEFT:   (lambda x: x.rotateAll('Y', -0.1)),
+            pygame.K_RIGHT:   (lambda x: x.rotateAll('Y', 0.1)),
+            pygame.K_UP:   (lambda x: x.rotateAll('X', -0.1)),
+            pygame.K_DOWN:   (lambda x: x.rotateAll('X', 0.1)),
+            pygame.K_q:   (lambda x: x.rotateAll('Z', -0.1)),
+            pygame.K_e:   (lambda x: x.rotateAll('Z', 0.1)),
+            pygame.K_d:  (lambda x: x.move_all('x',  10, self.objects["particula"].posicion)),
+            pygame.K_a:   (lambda x: x.move_all('x', -10, self.objects["particula"].posicion)),
+            pygame.K_s:   (lambda x: x.move_all('y',  10, self.objects["particula"].posicion)),
+            pygame.K_w:     (lambda x: x.move_all('y', -10)),
+            pygame.K_LSHIFT: (lambda x: x.scaleAll(1.25)),
+            pygame.K_LCTRL:  (lambda x: x.scaleAll( 0.8))
+        }
+        done = False
+        while not done:
+            keys = pygame.key.get_pressed()
+            for key in key_to_function.keys():
+                if keys[key]:
+                    key_to_function[key](self)
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        done = True
+                    # if event.key in key_to_function.keys():
+                    #     key_to_function[event.key](self)
+
+            pygame.time.delay(100)
+            self.display()
+            pygame.display.flip()
+        return done
+
+
+
 
 class Vector(object):
     """Objeto que son vectores"""
@@ -36,18 +72,24 @@ class E(structures_3D.Object):
         # self.edges = edges
 
     def generate_nodes(self, size):
-        for x in range(10, size, size/50):
-            for y in range(10, size, size/50):
-                for z in range(10, size, size/50):
+        for x in range(10, size, int(size/5)):
+            for y in range(10, size, int(size/5)):
+                for z in range(10, size, int(size/5)):
                     self.nodes.append(structures_3D.Node(x, y, z))
 
     def generate_edges(self, vect_end):
         for node in self.nodes:
-            self.edges.append(structures_3D.Edge(node, vect_end))
+            vector = Vec_A2B(node, vect_end)
+            self.edges.append(structures_3D.Edge(node, structures_3D.Node(node.x+vector.ux, node.y+vector.uy, node.z+vector.uz)))
 
-    # 
-    # def update():
-    #     for edge in edges():
+    def move(self, axis, d, pos_particula):
+        super(E, self).move(self, axis, d)
+        self.update(pos_particula)
+
+    def update(self, vect_end):
+        for node in self.nodes:
+            vector = Vec_A2B(node, vect_end)
+            self.edges.append(structures_3D.Edge(node, structures_3D.Node(node.x+vector.ux, node.y+vector.uy, node.z+vector.uz)))
 
 class Linea_de_campo(object):
     """docstring for Linea_de_campo."""
@@ -57,7 +99,7 @@ class Linea_de_campo(object):
         self.p1 = p1
         self.p2 = p2
 
-class Particula(object):
+class Particula(structures_3D.Object):
     """docstring for particula."""
 
     def __init__(self, carga, posicion, velocidad):
@@ -104,12 +146,14 @@ colores = {
 }
 
 
-size = 1000
 pygame.init()
-canvas = pygame.display.set_mode([size, size])
+size = 1000
+espacio = Space(size, size)
+# canvas = pygame.display.set_mode([size, size])
 
 # particula
-posicion = Punto(500, 500, 500)
+posicion = structures_3D.Node(500, 500, 500)
+
 carga=1.6*(10**-19)
 particula = Particula(carga, posicion, Vector(0, 0, 0))
 #
@@ -119,31 +163,41 @@ puntos_E = []
 for x in range(1, size):
     for y in range(1, size):
         if x%100==0 and y%100==0:
-            puntos_E.append(Punto(x, y, 0))
+            puntos_E.append(structures_3D.Node(x, y, 0))
         if (x-50)%100 == 0 and (y-50)%100 == 0:
-            puntos_B.append(Punto(x-5, y-5, 0))
-done = False
-while not done:
-    pressed = pygame.key.get_pressed()
-    particula.velocidad = Vector((pressed[pygame.K_d]*5-pressed[pygame.K_a]*5), (pressed[pygame.K_s]*5-pressed[pygame.K_w]*5), pressed[pygame.K_LSHIFT]*5-pressed[pygame.K_LCTRL]*5)
-    if particula.velocidad.modulo > 0:
-        particula.posicion = Punto(particula.posicion.x + particula.velocidad.x, particula.posicion.y + particula.velocidad.y, particula.posicion.z + (particula.velocidad.z)*0)
-    particula.dibujar()
-    for p in puntos_E:
-        dibujar_vector(p, Vec_A2B(p, particula.posicion, True), colores["E"])
-    for p in puntos_B:
-        if particula.velocidad.modulo > 0:
-            dibujar_vector(p, q__v1xv2(Vec_A2B(p, particula.posicion, True), particula.velocidad, particula.carga), colores["B"])
-    for event in pygame.event.get():
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_q:
-                done = True
-            if event.key == pygame.K_TAB:
-                particula.carga = -particula.carga
+            puntos_B.append(structures_3D.Node(x-5, y-5, 0))
 
+campo_E = E()
+campo_E.generate_nodes(size)
+campo_E.generate_edges(particula.posicion)
+espacio.add_object("particula", particula)
+espacio.add_object("E", campo_E)
 
-
-    pygame.display.flip()
-    pygame.time.delay(100)
-    canvas.fill((0, 0, 0))
-    pygame.display.flip()
+espacio.run()
+#
+# done = False
+# while not done:
+#     pressed = pygame.key.get_pressed()
+#     particula.velocidad = Vector((pressed[pygame.K_d]*5-pressed[pygame.K_a]*5), (pressed[pygame.K_s]*5-pressed[pygame.K_w]*5), pressed[pygame.K_LSHIFT]*5-pressed[pygame.K_LCTRL]*5)
+#     if particula.velocidad.modulo > 0:
+#         particula.posicion = structures_3D.Node(particula.posicion.x + particula.velocidad.x, particula.posicion.y + particula.velocidad.y, particula.posicion.z + (particula.velocidad.z)*0)
+#     particula.dibujar()
+#     # for p in puntos_E:
+#     #     dibujar_vector(p, Vec_A2B(p, particula.posicion, True), colores["E"])
+#     E.
+#     for p in puntos_B:
+#         if particula.velocidad.modulo > 0:
+#             dibujar_vector(p, q__v1xv2(Vec_A2B(p, particula.posicion, True), particula.velocidad, particula.carga), colores["B"])
+#     for event in pygame.event.get():
+#         if event.type == pygame.KEYDOWN:
+#             if event.key == pygame.K_q:
+#                 done = True
+#             if event.key == pygame.K_TAB:
+#                 particula.carga = -particula.carga
+#
+#
+#
+#     pygame.display.flip()
+#     pygame.time.delay(100)
+#     canvas.fill((0, 0, 0))
+#     pygame.display.flip()
