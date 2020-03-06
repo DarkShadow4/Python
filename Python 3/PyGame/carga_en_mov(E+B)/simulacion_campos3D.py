@@ -3,10 +3,13 @@ class Space(projections3D.Projection):
     def __init__(self, width, height):
         super(Space, self).__init__(width, height)
 
-    def move_all(self, axis, d, pos_particula):
+    def move_all(self, axis, d):
         if axis in ["x", "y", "x"]:
-            for thing in self.objects.values():
-                thing.move(axis, d, pos_particula)
+            pos_particula = self.objects["particula"].posicion
+            for thing_name, thing in self.objects.keys(), self.objects.values():
+                if "particula" != thing_name:
+                    thing.move(axis, d, pos_particula)
+                    thing.update(pos_particula)
 
     def run(self):
         """Create a pygame screen until it is closed."""
@@ -17,9 +20,9 @@ class Space(projections3D.Projection):
             pygame.K_DOWN:   (lambda x: x.rotateAll('X', 0.1)),
             pygame.K_q:   (lambda x: x.rotateAll('Z', -0.1)),
             pygame.K_e:   (lambda x: x.rotateAll('Z', 0.1)),
-            pygame.K_d:  (lambda x: x.move_all('x',  10, self.objects["particula"].posicion)),
-            pygame.K_a:   (lambda x: x.move_all('x', -10, self.objects["particula"].posicion)),
-            pygame.K_s:   (lambda x: x.move_all('y',  10, self.objects["particula"].posicion)),
+            pygame.K_d:  (lambda x: x.move_all('x',  10)),
+            pygame.K_a:   (lambda x: x.move_all('x', -10)),
+            pygame.K_s:   (lambda x: x.move_all('y',  10)),
             pygame.K_w:     (lambda x: x.move_all('y', -10)),
             pygame.K_LSHIFT: (lambda x: x.scaleAll(1.25)),
             pygame.K_LCTRL:  (lambda x: x.scaleAll( 0.8))
@@ -60,9 +63,9 @@ class Vector(object):
             self.uz = 0
         else:
             self.modulo = ((x**2)+(y**2)+(z**2))**(1/2)
-            self.ux = 5*x/self.modulo
-            self.uy = 5*y/self.modulo
-            self.uz = 5*z/self.modulo
+            self.ux = 5*(x/self.modulo)
+            self.uy = 5*(y/self.modulo)
+            self.uz = 5*(z/self.modulo)
 
 class E(structures_3D.Object):
     """Electrostatic field"""
@@ -78,15 +81,17 @@ class E(structures_3D.Object):
                     self.nodes.append(structures_3D.Node(x, y, z))
 
     def generate_edges(self, vect_end):
-        for node in self.nodes:
-            vector = Vec_A2B(node, vect_end)
-            self.edges.append(structures_3D.Edge(node, structures_3D.Node(node.x+vector.ux, node.y+vector.uy, node.z+vector.uz)))
+        pass
+        # for node in self.nodes:
+        #     vector = Vec_A2B(node, vect_end)
+        #     self.edges.append(structures_3D.Edge(node, structures_3D.Node(node.x+vector.ux, node.y+vector.uy, node.z+vector.uz)))
 
     def move(self, axis, d, pos_particula):
-        super(E, self).move(self, axis, d)
+        super(E, self).move(axis, d)
         self.update(pos_particula)
 
     def update(self, vect_end):
+        self.edges =[]
         for node in self.nodes:
             vector = Vec_A2B(node, vect_end)
             self.edges.append(structures_3D.Edge(node, structures_3D.Node(node.x+vector.ux, node.y+vector.uy, node.z+vector.uz)))
@@ -123,7 +128,7 @@ def q__v1xv2(v1, v2, carga):
     resultado = Vector(x, y, z)
     return(resultado)
 
-def Vec_A2B(A, B, unit=False):
+def Vec_A2B(A, B):
     vector = Vector((B.x-A.x), (B.y-A.y), (B.z-A.z))
     return(vector)
 
@@ -164,8 +169,8 @@ for x in range(1, size):
     for y in range(1, size):
         if x%100==0 and y%100==0:
             puntos_E.append(structures_3D.Node(x, y, 0))
-        if (x-50)%100 == 0 and (y-50)%100 == 0:
-            puntos_B.append(structures_3D.Node(x-5, y-5, 0))
+        # if (x-50)%100 == 0 and (y-50)%100 == 0:
+        #     puntos_B.append(structures_3D.Node(x-5, y-5, 0))
 
 campo_E = E()
 campo_E.generate_nodes(size)
