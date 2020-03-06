@@ -1,4 +1,6 @@
 import pygame, math, projections3D, structures_3D
+# import dill
+
 class Space(projections3D.Projection):
     def __init__(self, width, height):
         super(Space, self).__init__(width, height)
@@ -6,29 +8,55 @@ class Space(projections3D.Projection):
     def move_all(self, axis, d):
         if axis in ["x", "y", "x"]:
             pos_particula = self.objects["particula"].posicion
-            for thing_name, thing in self.objects.keys(), self.objects.values():
-                if "particula" != thing_name:
-                    thing.move(axis, d, pos_particula)
-                    thing.update(pos_particula)
+            for thing_name in self.objects.keys():
+                if thing_name != "particula":
+                    self.objects[thing_name].move(axis, d, pos_particula)
+
+    def move_particle(self, axis, d):
+        if axis in ["x", "y", "x"]:
+            self.objects["particula"].move(axis, d)
+
+
+    def update_lines(self):
+        pos_particula = self.objects["particula"].posicion
+        for thing_name in self.objects.keys():
+            if thing_name != "particula":
+                self.objects[thing_name].update(pos_particula)
 
     def run(self):
         """Create a pygame screen until it is closed."""
         key_to_function = {
-            pygame.K_LEFT:   (lambda x: x.rotateAll('Y', -0.1)),
-            pygame.K_RIGHT:   (lambda x: x.rotateAll('Y', 0.1)),
-            pygame.K_UP:   (lambda x: x.rotateAll('X', -0.1)),
-            pygame.K_DOWN:   (lambda x: x.rotateAll('X', 0.1)),
-            pygame.K_q:   (lambda x: x.rotateAll('Z', -0.1)),
-            pygame.K_e:   (lambda x: x.rotateAll('Z', 0.1)),
-            pygame.K_d:  (lambda x: x.move_all('x',  10)),
-            pygame.K_a:   (lambda x: x.move_all('x', -10)),
-            pygame.K_s:   (lambda x: x.move_all('y',  10)),
-            pygame.K_w:     (lambda x: x.move_all('y', -10)),
-            pygame.K_LSHIFT: (lambda x: x.scaleAll(1.25)),
-            pygame.K_LCTRL:  (lambda x: x.scaleAll( 0.8))
+            # Keymap for the field rotations:
+            pygame.K_KP8:   (lambda x: x.rotateAll('X', 0.1)),                  # numpad 8: rotate x wise clockwise (right)
+            pygame.K_KP4:   (lambda x: x.rotateAll('Y', 0.1)),                  # numpad 4: rotate y wise clockwise (left)
+            pygame.K_KP2:   (lambda x: x.rotateAll('X', -0.1)),                 # numpad 2: rotate x wise anti-clockwise (down)
+            pygame.K_KP6:   (lambda x: x.rotateAll('Y', -0.1)),                 # numpad 6: rotate y wise anti-clockwise (right)
+            pygame.K_KP7:   (lambda x: x.rotateAll('Z', -0.1)),                 # numpad 7: rotate z wise anti-clockwise (left)
+            pygame.K_KP9:   (lambda x: x.rotateAll('Z', 0.1)),                  # numpad 9: rotate z wise clockwise (right)
+
+            # Zooming
+            pygame.K_RSHIFT:   (lambda x: x.scaleAll(1.05)),               # right shift: zoom +
+            pygame.K_RCTRL:   (lambda x: x.scaleAll(0.9)),                # right ctrl: zoom -
+
+            # Keymap for the field translations:
+            pygame.K_LEFT:   (lambda x: x.move_all('x', -10)),
+            pygame.K_RIGHT: (lambda x: x.move_all('x',  10)),
+            pygame.K_UP:   (lambda x: x.move_all('y', -10)),
+            pygame.K_DOWN:   (lambda x: x.move_all('y', 10)),
+
+            # Keymap for the particle translations:
+            # pygame.K_q:   (lambda x: x.rotateAll('Z', -0.1)),
+            # pygame.K_e:   (lambda x: x.rotateAll('Z', 0.1)),
+            pygame.K_d:  (lambda x: x.move_particle('x',  10)),      # change to move only the particle
+            pygame.K_a:   (lambda x: x.move_particle('x', -10)),     # change to move only the particle
+            pygame.K_s:   (lambda x: x.move_particle('y',  10)),     # change to move only the particle
+            pygame.K_w:     (lambda x: x.move_particle('y', -10)),   # change to move only the particle
+            pygame.K_LSHIFT: (lambda x: x.move_particle("z", 10)),      # change to move only the particle
+            pygame.K_LCTRL:  (lambda x: x.move_particle("z", -10))       # change to move only the particle
         }
         done = False
         while not done:
+            self.update_lines()
             keys = pygame.key.get_pressed()
             for key in key_to_function.keys():
                 if keys[key]:
@@ -88,13 +116,13 @@ class E(structures_3D.Object):
 
     def move(self, axis, d, pos_particula):
         super(E, self).move(axis, d)
-        self.update(pos_particula)
+        # self.update(pos_particula)
 
     def update(self, vect_end):
         self.edges =[]
         for node in self.nodes:
             vector = Vec_A2B(node, vect_end)
-            self.edges.append(structures_3D.Edge(node, structures_3D.Node(node.x+vector.ux, node.y+vector.uy, node.z+vector.uz)))
+            self.edges.append(structures_3D.Edge(node, structures_3D.Node(node.x+vector.x, node.y+vector.y, node.z+vector.z)))
 
 class Linea_de_campo(object):
     """docstring for Linea_de_campo."""
@@ -113,8 +141,15 @@ class Particula(structures_3D.Object):
         self.posicion = posicion
         self.velocidad = velocidad
 
+    def move(self, axis, d):
+        setattr(self.posicion, axis, getattr(self.posicion, axis) + d)
+
     def dibujar(self):
-        pygame.draw.circle(canvas, (0, 0, 255), (self.posicion.x, self.posicion.y), 10, 1)
+        if carga > 0:
+            color = (0, 0, 255)
+        else:
+            color = (255, 0, 0)
+        pygame.draw.circle(canvas, color, (self.posicion.x, self.posicion.y), 10, 1)
 
 def q__v1xv2(v1, v2, carga):
     """
