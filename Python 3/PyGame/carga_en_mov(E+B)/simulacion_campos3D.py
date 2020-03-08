@@ -2,26 +2,52 @@ import pygame, math, projections3D, structures_3D
 # import dill
 
 class Space(projections3D.Projection):
-    def __init__(self, width, height):
+    def __init__(self, width, height, profundity):
         super(Space, self).__init__(width, height)
+        self.profundity = profundity
+
+    def find_common_centre(self):
+        centres = []
+        for thing in self.objects.values():
+            centres.append(thing.get_centre())
+        centre_x = sum(centres[0])/len(centres[0])
+        centre_y = sum(centres[1])/len(centres[1])
+        centre_z = sum(centres[2])/len(centres[2])
+        return(centre_x, centre_y, centre_z)
 
     def move_all(self, axis, d):
         if axis in ["x", "y", "x"]:
-            pos_particula = self.objects["particula"].posicion
             for thing_name in self.objects.keys():
-                if thing_name != "particula":
-                    self.objects[thing_name].move(axis, d, pos_particula)
+                self.objects[thing_name].move(axis, d)
 
     def move_particle(self, axis, d):
         if axis in ["x", "y", "x"]:
+
             self.objects["particula"].move(axis, d)
 
+    def rotateAll(self, axis, theta):
+        """ Rotate all thing about their centre, along a given axis by a given angle. """
+        rotateFunction = 'rotate' + axis
+        for thing in self.objects.values():
+            # centre = self.find_common_centre()
+            centre = (self.width/2, self.height/2, self.profundity/2)
+            getattr(thing, rotateFunction)(centre, theta)
 
     def update_lines(self):
         pos_particula = self.objects["particula"].posicion
-        for thing_name in self.objects.keys():
-            if thing_name != "particula":
-                self.objects[thing_name].update(pos_particula)
+        for thing in self.objects.values():
+            if "update" in dir(thing):
+                thing.update(pos_particula, self.objects["particula"])
+
+    def invert_particle_charge(self):
+         self.objects["particula"].carga = -self.objects["particula"].carga
+
+    def print_all_centres(self):
+        for thing in self.objects.values():
+            centre = thing.get_centre()
+            print("({0}, {1}, {2})".format(centre[0], centre[1], centre[2]))
+        print()
+
 
     def run(self):
         """Create a pygame screen until it is closed."""
@@ -35,8 +61,8 @@ class Space(projections3D.Projection):
             pygame.K_KP9:   (lambda x: x.rotateAll('Z', 0.1)),                  # numpad 9: rotate z wise clockwise (right)
 
             # Zooming
-            pygame.K_RSHIFT:   (lambda x: x.scaleAll(1.05)),               # right shift: zoom +
-            pygame.K_RCTRL:   (lambda x: x.scaleAll(0.9)),                # right ctrl: zoom -
+            pygame.K_RSHIFT:   (lambda x: x.scaleAll(1.25)),               # right shift: zoom +
+            pygame.K_RCTRL:   (lambda x: x.scaleAll(0.8)),                # right ctrl: zoom -
 
             # Keymap for the field translations:
             pygame.K_LEFT:   (lambda x: x.move_all('x', -10)),
@@ -52,12 +78,14 @@ class Space(projections3D.Projection):
             pygame.K_s:   (lambda x: x.move_particle('y',  10)),     # change to move only the particle
             pygame.K_w:     (lambda x: x.move_particle('y', -10)),   # change to move only the particle
             pygame.K_LSHIFT: (lambda x: x.move_particle("z", 10)),      # change to move only the particle
-            pygame.K_LCTRL:  (lambda x: x.move_particle("z", -10))       # change to move only the particle
+            pygame.K_LCTRL:  (lambda x: x.move_particle("z", -10)),       # change to move only the particle
+
+            pygame.K_SPACE:  (lambda x: x.print_all_centres())       # change to move only the particle
         }
         done = False
         while not done:
-            self.update_lines()
             keys = pygame.key.get_pressed()
+            self.objects["particula"].velocidad = Vector(10*keys[pygame.K_d]-10*keys[pygame.K_a], 10*keys[pygame.K_s]-10*keys[pygame.K_w], 10*keys[pygame.K_LSHIFT]-10*keys[pygame.K_LCTRL])
             for key in key_to_function.keys():
                 if keys[key]:
                     key_to_function[key](self)
@@ -65,10 +93,11 @@ class Space(projections3D.Projection):
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         done = True
-                    # if event.key in key_to_function.keys():
-                    #     key_to_function[event.key](self)
+                    if event.key == pygame.K_TAB:
+                        self.invert_particle_charge()
 
             pygame.time.delay(100)
+            self.update_lines()
             self.display()
             pygame.display.flip()
         return done
@@ -91,44 +120,72 @@ class Vector(object):
             self.uz = 0
         else:
             self.modulo = ((x**2)+(y**2)+(z**2))**(1/2)
-            self.ux = 5*(x/self.modulo)
-            self.uy = 5*(y/self.modulo)
-            self.uz = 5*(z/self.modulo)
+            self.ux = 20*(x/self.modulo)
+            self.uy = 20*(y/self.modulo)
+            self.uz = 20*(z/self.modulo)
 
 class E(structures_3D.Object):
     """Electrostatic field"""
     def __init__(self, nodes=[], edges=[]):
-        super(E, self).__init__()
+        super(E, self).__init__(node_color = (0, 100, 150), edge_color = (0, 255, 255))
         # self.nodes = nodes
         # self.edges = edges
 
     def generate_nodes(self, size):
-        for x in range(10, size, int(size/5)):
-            for y in range(10, size, int(size/5)):
-                for z in range(10, size, int(size/5)):
+        for x in range(200, size, int(size/5)):
+            for y in range(200, size, int(size/5)):
+                for z in range(200, size, int(size/5)):
                     self.nodes.append(structures_3D.Node(x, y, z))
 
-    def generate_edges(self, vect_end):
-        pass
-        # for node in self.nodes:
-        #     vector = Vec_A2B(node, vect_end)
-        #     self.edges.append(structures_3D.Edge(node, structures_3D.Node(node.x+vector.ux, node.y+vector.uy, node.z+vector.uz)))
-
-    def move(self, axis, d, pos_particula):
+    def move(self, axis, d):
         super(E, self).move(axis, d)
-        # self.update(pos_particula)
 
-    def update(self, vect_end):
+    def update(self, vect_end, particle):
         self.edges =[]
         for node in self.nodes:
             vector = Vec_A2B(node, vect_end)
-            self.edges.append(structures_3D.Edge(node, structures_3D.Node(node.x+vector.x, node.y+vector.y, node.z+vector.z)))
+            vector.x, vector.y, vector.z = vector.x*(particle.carga/((particle.carga**2)**1/2)), vector.y*(particle.carga/((particle.carga**2)**1/2)), vector.z*(particle.carga/((particle.carga**2)**1/2))
+            start = structures_3D.Node(node.x, node.y, node.z)
+            end = structures_3D.Node(start.x+vector.ux, start.y+vector.uy, start.z+vector.uz)
+            edge = structures_3D.Edge(start, end)
+            self.edges.append(edge)
+        # print("de ({0}, {1}, {2}) a ({3}, {4}, {5})".format(start.x, start.y, start.z, end.x, end.y, end.z))
+        # print("vector ({0}, {1}, {2}) vector unitario ({3}, {4}, {5})".format(vector.x, vector.y, vector.z, vector.ux, vector.uy, vector.uz))
+
+class B(structures_3D.Object):
+    """Magnetic field"""
+    def __init__(self, nodes=[], edges=[]):
+        super(B, self).__init__(node_color = (0, 100, 0), edge_color = (0, 255, 0))
+        # self.nodes = nodes
+        # self.edges = edges
+
+    def generate_nodes(self, size):
+        for x in range(200, size, int(size/5)):
+            for y in range(200, size, int(size/5)):
+                for z in range(200, size, int(size/5)):
+                    self.nodes.append(structures_3D.Node(x, y, z))
+
+    def move(self, axis, d):
+        super(B, self).move(axis, d)
+
+    def update(self, vect_end, particle):
+        self.edges =[]
+        carga = particle.carga
+        velocidad = particle.velocidad
+        for node in self.nodes:
+            radio = Vec_A2B(node, vect_end)
+            start = structures_3D.Node(node.x, node.y, node.z)
+            vector = q__v1xv2(radio, velocidad, carga)
+            end = structures_3D.Node(start.x+vector.ux, start.y+vector.uy, start.z+vector.uz)
+            edge = structures_3D.Edge(start, end)
+            self.edges.append(edge)
+
 
 class Linea_de_campo(object):
     """docstring for Linea_de_campo."""
 
     def __init__(self, p1, p2):
-        super(Linea_de_campo, self).__init__()
+        super(Linea_de_campo, self).__init__(node_color = (10, 255, 255), edge_color = (0, 255, 255))
         self.p1 = p1
         self.p2 = p2
 
@@ -136,20 +193,33 @@ class Particula(structures_3D.Object):
     """docstring for particula."""
 
     def __init__(self, carga, posicion, velocidad):
-        super(Particula, self).__init__()
+        super(Particula, self).__init__(node_color=(0, 0, 255), edge_color=(200, 200, 200))
         self.carga = carga
         self.posicion = posicion
+        self.nodes = [posicion] # El segundo nodo es la punta del vector velocidad, como empieza en reposo no tiene velocidad
         self.velocidad = velocidad
 
-    def move(self, axis, d):
-        setattr(self.posicion, axis, getattr(self.posicion, axis) + d)
-
-    def dibujar(self):
-        if carga > 0:
-            color = (0, 0, 255)
+    def update(self, vect_end, particle):
+        self.edges = [structures_3D.Edge(self.posicion, structures_3D.Node(self.posicion.x+self.velocidad.ux, self.posicion.y+self.velocidad.uy, self.posicion.z+self.velocidad.uz))]
+        if self.carga > 0:
+            self.node_color = (0, 0, 255)
         else:
-            color = (255, 0, 0)
-        pygame.draw.circle(canvas, color, (self.posicion.x, self.posicion.y), 10, 1)
+            self.node_color = (255, 0, 0)
+
+    def move(self, axis="", d=0):
+        if axis in ["x", "y", "z"]:
+            for node in self.nodes:
+                setattr(node, axis, getattr(node, axis) + d)
+        elif axis == "":
+            for axis in ["x", "y", "z"]:
+                for node in self.nodes:
+                    setattr(node, axis, getattr(node, axis) + getattr(velocidad, axis))
+    # def dibujar(self):
+    #     if self.carga > 0:
+    #         self.color = (0, 0, 255)
+    #     else:
+    #         self.color = (255, 0, 0)
+    #     pygame.draw.circle(canvas, color, (self.posicion.x, self.posicion.y), 10, 1)
 
 def q__v1xv2(v1, v2, carga):
     """
@@ -182,13 +252,13 @@ def dibujar_vector(P_aplicacion, vector, color=(255, 255, 255)):
 colores = {
     "B":(0, 255, 0),
     "E":(0, 255, 255),
-    "velocidad":(255, 0, 0)
+    "velocidad":(200, 200, 200)
 }
 
 
 pygame.init()
 size = 1000
-espacio = Space(size, size)
+espacio = Space(size, size, size)
 # canvas = pygame.display.set_mode([size, size])
 
 # particula
@@ -209,9 +279,12 @@ for x in range(1, size):
 
 campo_E = E()
 campo_E.generate_nodes(size)
-campo_E.generate_edges(particula.posicion)
+campo_B = B()
+campo_B.generate_nodes(size)
+
 espacio.add_object("particula", particula)
 espacio.add_object("E", campo_E)
+espacio.add_object("B", campo_B)
 
 espacio.run()
 #

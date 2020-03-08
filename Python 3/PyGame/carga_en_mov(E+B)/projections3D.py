@@ -8,24 +8,28 @@ class Projection(object):
         self.height = height
         self.screen = pygame.display.set_mode((width, height))
         pygame.display.set_caption("Object display")
-        self.background = (255, 255, 255)
+        self.background = (0, 0, 0)
         self.objects = {}
         self.displayNodes = True
         self.displayEdges = True
-        self.nodeColour = (0,0,0)
-        self.edgeColour = (125,125,125)
+        # self.nodeColour = (0,0,0)
+        # self.edgeColour = (125,125,125)
         self.nodeRadius = 4
 
     def display(self):
         """ Draw the objects on the screen. """
         self.screen.fill(self.background)
         for thing in self.objects.values():
-            if self.displayEdges:
-                for edge in thing.edges:
-                    pygame.draw.aaline(self.screen, self.edgeColour, (edge.start.x, edge.start.y), (edge.end.x, edge.end.y), 1)
-            if self.displayNodes:
-                for node in thing.nodes:
-                    pygame.draw.circle(self.screen, self.nodeColour, (int(node.x), int(node.y)), self.nodeRadius, 0)
+            # if thing.displayEdges:
+            #     for edge in thing.edges:
+            #         pygame.draw.aaline(self.screen, self.edgeColour, (edge.start.x, edge.start.y), (edge.end.x, edge.end.y), 1)
+            for edge in thing.edges:
+                    pygame.draw.aaline(self.screen, thing.edge_color, (edge.start.x, edge.start.y), (edge.end.x, edge.end.y), 1)
+            # if thing.displayNodes:
+            #     for node in thing.nodes:
+            #         pygame.draw.circle(self.screen, self.nodeColour, (int(node.x), int(node.y)), self.nodeRadius, 0)
+            for node in thing.nodes:
+                pygame.draw.circle(self.screen, thing.node_color, (int(node.x), int(node.y)), self.nodeRadius, 0)
 
     def run(self):
         """Create a pygame screen until it is closed."""

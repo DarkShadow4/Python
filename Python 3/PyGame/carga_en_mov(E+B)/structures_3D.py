@@ -14,9 +14,11 @@ class Edge(object):
         self.end = node2
 
 class Object(object):
-    def __init__(self, nodes=[], edges=[]):
+    def __init__(self, node_color=(0,0,0), edge_color=(125,125,125), nodes=[], edges=[]):
         self.nodes = nodes
         self.edges = edges
+        self.node_color = node_color
+        self.edge_color = edge_color
 
     def add_nodes(self, nodes):
         for node in nodes:
@@ -58,9 +60,9 @@ class Object(object):
     def get_centre(self):
         """Returns the centre of the object"""
         n_nodes = len(self.nodes)
-        centre_x = sum(node.x for node in self.nodes)/n_nodes
-        centre_y = sum(node.y for node in self.nodes)/n_nodes
-        centre_z = sum(node.z for node in self.nodes)/n_nodes
+        centre_x = int(sum(node.x for node in self.nodes)/n_nodes)
+        centre_y = int(sum(node.y for node in self.nodes)/n_nodes)
+        centre_z = int(sum(node.z for node in self.nodes)/n_nodes)
         return(centre_x, centre_y, centre_z)
 
     def rotateX(self, centre, radians):
