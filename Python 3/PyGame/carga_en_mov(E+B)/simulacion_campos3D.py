@@ -126,8 +126,8 @@ class Vector(object):
 
 class E(structures_3D.Object):
     """Electrostatic field"""
-    def __init__(self, nodes=[], edges=[]):
-        super(E, self).__init__(node_color = (0, 100, 150), edge_color = (0, 255, 255))
+    def __init__(self, node_color = (0, 100, 150), edge_color = (0, 255, 255), nodes=[], edges=[]):
+        super(E, self).__init__(nodes, edges, node_color, edge_color)
         # self.nodes = nodes
         # self.edges = edges
 
@@ -135,7 +135,7 @@ class E(structures_3D.Object):
         for x in range(200, size, int(size/5)):
             for y in range(200, size, int(size/5)):
                 for z in range(200, size, int(size/5)):
-                    self.nodes.append(structures_3D.Node(x, y, z))
+                    self.nodes.append(structures_3D.Node(x, y, z)) # -(size/2)
 
     def move(self, axis, d):
         super(E, self).move(axis, d)
@@ -154,8 +154,8 @@ class E(structures_3D.Object):
 
 class B(structures_3D.Object):
     """Magnetic field"""
-    def __init__(self, nodes=[], edges=[]):
-        super(B, self).__init__(node_color = (0, 100, 0), edge_color = (0, 255, 0))
+    def __init__(self, node_color = (0, 100, 0), edge_color = (0, 255, 0), nodes=[], edges=[]):
+        super(B, self).__init__(nodes, edges, node_color, edge_color)
         # self.nodes = nodes
         # self.edges = edges
 
@@ -163,7 +163,7 @@ class B(structures_3D.Object):
         for x in range(200, size, int(size/5)):
             for y in range(200, size, int(size/5)):
                 for z in range(200, size, int(size/5)):
-                    self.nodes.append(structures_3D.Node(x, y, z))
+                    self.nodes.append(structures_3D.Node(x, y, z)) # -(size/2)
 
     def move(self, axis, d):
         super(B, self).move(axis, d)
@@ -208,8 +208,9 @@ class Particula(structures_3D.Object):
 
     def move(self, axis="", d=0):
         if axis in ["x", "y", "z"]:
-            for node in self.nodes:
-                setattr(node, axis, getattr(node, axis) + d)
+            super(Particula, self).move(axis, d)
+            # for node in self.nodes:
+            #     setattr(node, axis, getattr(node, axis) + d)
         elif axis == "":
             for axis in ["x", "y", "z"]:
                 for node in self.nodes:
@@ -250,8 +251,10 @@ def dibujar_vector(P_aplicacion, vector, color=(255, 255, 255)):
             pygame.draw.line(canvas, color, (P_aplicacion.x+7, P_aplicacion.y-7), (P_aplicacion.x-7, P_aplicacion.y+7))
 
 colores = {
-    "B":(0, 255, 0),
-    "E":(0, 255, 255),
+    "B_edges":(0, 255, 0),
+    "B_nodes":(0, 100, 150),
+    "E_edges":(0, 255, 255),
+    "E_nodes":(150, 150, 255),
     "velocidad":(200, 200, 200)
 }
 
@@ -262,7 +265,7 @@ espacio = Space(size, size, size)
 # canvas = pygame.display.set_mode([size, size])
 
 # particula
-posicion = structures_3D.Node(500, 500, 500)
+posicion = structures_3D.Node(size/2, size/2, size/2)
 
 carga=1.6*(10**-19)
 particula = Particula(carga, posicion, Vector(0, 0, 0))
@@ -277,9 +280,9 @@ for x in range(1, size):
         # if (x-50)%100 == 0 and (y-50)%100 == 0:
         #     puntos_B.append(structures_3D.Node(x-5, y-5, 0))
 
-campo_E = E()
+campo_E = E(colores["E_nodes"], colores["E_edges"])
 campo_E.generate_nodes(size)
-campo_B = B()
+campo_B = B(colores["B_nodes"], colores["B_edges"])
 campo_B.generate_nodes(size)
 
 espacio.add_object("particula", particula)

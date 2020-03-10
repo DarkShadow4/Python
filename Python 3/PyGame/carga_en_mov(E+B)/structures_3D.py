@@ -14,7 +14,7 @@ class Edge(object):
         self.end = node2
 
 class Object(object):
-    def __init__(self, node_color=(0,0,0), edge_color=(125,125,125), nodes=[], edges=[]):
+    def __init__(self, nodes=[], edges=[], node_color=(0,0,0), edge_color=(125,125,125)):
         self.nodes = nodes
         self.edges = edges
         self.node_color = node_color
