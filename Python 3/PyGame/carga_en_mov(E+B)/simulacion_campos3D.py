@@ -21,9 +21,9 @@ class Space(projections3D.Projection):
                 self.objects[thing_name].move(axis, d)
 
     def move_particle(self, axis, d):
-        if axis in ["x", "y", "x"]:
-
-            self.objects["particula"].move(axis, d)
+        self.objects["particula"].move(axis, d)
+        # if axis in ["x", "y", "x"]:
+        #     self.objects["particula"].move(axis, d)
 
     def rotateAll(self, axis, theta):
         """ Rotate all thing about their centre, along a given axis by a given angle. """
@@ -77,8 +77,8 @@ class Space(projections3D.Projection):
             pygame.K_a:   (lambda x: x.move_particle('x', -10)),     # change to move only the particle
             pygame.K_s:   (lambda x: x.move_particle('y',  10)),     # change to move only the particle
             pygame.K_w:     (lambda x: x.move_particle('y', -10)),   # change to move only the particle
-            pygame.K_LSHIFT: (lambda x: x.move_particle("z", 10)),      # change to move only the particle
-            pygame.K_LCTRL:  (lambda x: x.move_particle("z", -10)),       # change to move only the particle
+            pygame.K_LSHIFT: (lambda x: x.move_particle('z', 10)),      # change to move only the particle
+            pygame.K_LCTRL:  (lambda x: x.move_particle('z', -10)),       # change to move only the particle
 
             pygame.K_SPACE:  (lambda x: x.print_all_centres())       # change to move only the particle
         }
@@ -207,6 +207,7 @@ class Particula(structures_3D.Object):
             self.node_color = (255, 0, 0)
 
     def move(self, axis="", d=0):
+        print("antes: ({0}, {1}, {2})".format(self.posicion.x, self.posicion.y, self.posicion.z))
         if axis in ["x", "y", "z"]:
             super(Particula, self).move(axis, d)
             # for node in self.nodes:
@@ -215,6 +216,7 @@ class Particula(structures_3D.Object):
             for axis in ["x", "y", "z"]:
                 for node in self.nodes:
                     setattr(node, axis, getattr(node, axis) + getattr(velocidad, axis))
+        print("despues: ({0}, {1}, {2})".format(self.posicion.x, self.posicion.y, self.posicion.z))
     # def dibujar(self):
     #     if self.carga > 0:
     #         self.color = (0, 0, 255)
