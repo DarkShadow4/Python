@@ -183,7 +183,7 @@ class B(structures_3D.Object):
         for node in self.nodes:
             radio = Vec_A2B(node, vect_end)
             start = structures_3D.Node(node.x, node.y, node.z)
-            vector = q__v1xv2(radio, velocidad, carga)
+            vector = q__v1xv2(velocidad, radio, carga)
             end = structures_3D.Node(start.x+vector.ux, start.y+vector.uy, start.z+vector.uz)
             edge = structures_3D.Edge(start, end)
             self.edges.append(edge)
