@@ -20,10 +20,12 @@ class Space(projections3D.Projection):
             for thing_name in self.objects.keys():
                 self.objects[thing_name].move(axis, d)
 
-    def move_particle(self, axis, d):
-        self.objects["particula"].move(axis, d)
-        # if axis in ["x", "y", "x"]:
-        #     self.objects["particula"].move(axis, d)
+    def move_particle(self, axis="", d=0):
+        if axis == "":
+            if self.objects["particula"].velocidad.modulo > 0:
+                self.objects["particula"].move(axis, d)
+        elif axis in ["x", "y", "x"]:
+            self.objects["particula"].move(axis, d)
 
     def rotateAll(self, axis, theta):
         """ Rotate all thing about their centre, along a given axis by a given angle. """
@@ -73,19 +75,21 @@ class Space(projections3D.Projection):
             # Keymap for the particle translations:
             # pygame.K_q:   (lambda x: x.rotateAll('Z', -0.1)),
             # pygame.K_e:   (lambda x: x.rotateAll('Z', 0.1)),
-            pygame.K_d:  (lambda x: x.move_particle('x',  10)),      # change to move only the particle
-            pygame.K_a:   (lambda x: x.move_particle('x', -10)),     # change to move only the particle
-            pygame.K_s:   (lambda x: x.move_particle('y',  10)),     # change to move only the particle
-            pygame.K_w:     (lambda x: x.move_particle('y', -10)),   # change to move only the particle
-            pygame.K_LSHIFT: (lambda x: x.move_particle('z', 10)),      # change to move only the particle
-            pygame.K_LCTRL:  (lambda x: x.move_particle('z', -10)),       # change to move only the particle
+            # pygame.K_d:  (lambda x: x.move_particle('x',  10)),      # change to move only the particle
+            # pygame.K_a:   (lambda x: x.move_particle('x', -10)),     # change to move only the particle
+            # pygame.K_s:   (lambda x: x.move_particle('y',  10)),     # change to move only the particle
+            # pygame.K_w:     (lambda x: x.move_particle('y', -10)),   # change to move only the particle
+            # pygame.K_LSHIFT: (lambda x: x.move_particle('z', -10)),      # change to move only the particle
+            # pygame.K_LCTRL:  (lambda x: x.move_particle('z', 10)),       # change to move only the particle
 
             pygame.K_SPACE:  (lambda x: x.print_all_centres())       # change to move only the particle
         }
         done = False
         while not done:
             keys = pygame.key.get_pressed()
-            self.objects["particula"].velocidad = Vector(10*keys[pygame.K_d]-10*keys[pygame.K_a], 10*keys[pygame.K_s]-10*keys[pygame.K_w], 10*keys[pygame.K_LSHIFT]-10*keys[pygame.K_LCTRL])
+            self.objects["particula"].velocidad = Vector(10*keys[pygame.K_d]-10*keys[pygame.K_a], 10*keys[pygame.K_s]-10*keys[pygame.K_w], 10*keys[pygame.K_LCTRL]-10*keys[pygame.K_LSHIFT])
+            self.objects["particula"].velocidad.actualizar_modulo()
+            self.move_particle()
             for key in key_to_function.keys():
                 if keys[key]:
                     key_to_function[key](self)
@@ -96,6 +100,7 @@ class Space(projections3D.Projection):
                     if event.key == pygame.K_TAB:
                         self.invert_particle_charge()
 
+            # self.objects["particula"].move()
             pygame.time.delay(100)
             self.update_lines()
             self.display()
@@ -113,16 +118,19 @@ class Vector(object):
         self.x = x
         self.y = y
         self.z = z
-        if x == y == z == 0:
+        self.actualizar_modulo()
+
+    def actualizar_modulo(self):
+        if self.x == self.y == self.z == 0:
             self.modulo = 0
             self.ux = 0
             self.uy = 0
             self.uz = 0
         else:
-            self.modulo = ((x**2)+(y**2)+(z**2))**(1/2)
-            self.ux = 20*(x/self.modulo)
-            self.uy = 20*(y/self.modulo)
-            self.uz = 20*(z/self.modulo)
+            self.modulo = ((self.x**2)+(self.y**2)+(self.z**2))**(1/2)
+            self.ux = 20*(self.x/self.modulo)
+            self.uy = 20*(self.y/self.modulo)
+            self.uz = 20*(self.z/self.modulo)
 
 class E(structures_3D.Object):
     """Electrostatic field"""
@@ -144,7 +152,7 @@ class E(structures_3D.Object):
         self.edges =[]
         for node in self.nodes:
             vector = Vec_A2B(node, vect_end)
-            vector.x, vector.y, vector.z = vector.x*(particle.carga/((particle.carga**2)**1/2)), vector.y*(particle.carga/((particle.carga**2)**1/2)), vector.z*(particle.carga/((particle.carga**2)**1/2))
+            vector.ux, vector.uy, vector.uz = vector.ux*(particle.carga/abs(particle.carga)), vector.uy*(particle.carga/abs(particle.carga)), vector.uz*(particle.carga/abs(particle.carga))
             start = structures_3D.Node(node.x, node.y, node.z)
             end = structures_3D.Node(start.x+vector.ux, start.y+vector.uy, start.z+vector.uz)
             edge = structures_3D.Edge(start, end)
@@ -207,15 +215,20 @@ class Particula(structures_3D.Object):
             self.node_color = (255, 0, 0)
 
     def move(self, axis="", d=0):
+        print(self.carga)
         print("antes: ({0}, {1}, {2})".format(self.posicion.x, self.posicion.y, self.posicion.z))
         if axis in ["x", "y", "z"]:
             super(Particula, self).move(axis, d)
             # for node in self.nodes:
             #     setattr(node, axis, getattr(node, axis) + d)
         elif axis == "":
-            for axis in ["x", "y", "z"]:
-                for node in self.nodes:
-                    setattr(node, axis, getattr(node, axis) + getattr(velocidad, axis))
+            # for axis in ["x", "y", "z"]:
+            #     for node in self.nodes:
+            #         setattr(node, axis, getattr(node, axis) + getattr(velocidad, axis))
+            for node in self.nodes:
+                node.x += self.velocidad.x
+                node.y += self.velocidad.y
+                node.z += self.velocidad.z
         print("despues: ({0}, {1}, {2})".format(self.posicion.x, self.posicion.y, self.posicion.z))
     # def dibujar(self):
     #     if self.carga > 0:
@@ -230,10 +243,10 @@ def q__v1xv2(v1, v2, carga):
     |v1.x v1.y v1.z| y = -((v1.x*v2.z)-(v1.z*v2.x))
     |v2.x v2.y v2.z| z = ((v1.x*v2.y)-(v1.y*v2.x))
     """
-    x = ((v1.y*v2.z)-(v1.z*v2.y))*(carga/abs(carga))
-    y = -((v1.x*v2.z)-(v1.z*v2.x))*(carga/abs(carga))
-    z = ((v1.x*v2.y)-(v1.y*v2.x))*(carga/abs(carga))
-    resultado = Vector(x, y, z)
+    x = ((v1.y*v2.z)-(v1.z*v2.y))
+    y = -((v1.x*v2.z)-(v1.z*v2.x))
+    z = ((v1.x*v2.y)-(v1.y*v2.x))
+    resultado = Vector(x*(carga/abs(carga)), y*(carga/abs(carga)), z*(carga/abs(carga)))
     return(resultado)
 
 def Vec_A2B(A, B):
