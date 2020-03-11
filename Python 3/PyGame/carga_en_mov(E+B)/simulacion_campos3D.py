@@ -215,8 +215,7 @@ class Particula(structures_3D.Object):
             self.node_color = (255, 0, 0)
 
     def move(self, axis="", d=0):
-        print(self.carga)
-        print("antes: ({0}, {1}, {2})".format(self.posicion.x, self.posicion.y, self.posicion.z))
+        # print("antes: ({0}, {1}, {2})".format(self.posicion.x, self.posicion.y, self.posicion.z))
         if axis in ["x", "y", "z"]:
             super(Particula, self).move(axis, d)
             # for node in self.nodes:
@@ -229,7 +228,7 @@ class Particula(structures_3D.Object):
                 node.x += self.velocidad.x
                 node.y += self.velocidad.y
                 node.z += self.velocidad.z
-        print("despues: ({0}, {1}, {2})".format(self.posicion.x, self.posicion.y, self.posicion.z))
+        # print("despues: ({0}, {1}, {2})".format(self.posicion.x, self.posicion.y, self.posicion.z))
     # def dibujar(self):
     #     if self.carga > 0:
     #         self.color = (0, 0, 255)
