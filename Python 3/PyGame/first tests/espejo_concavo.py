@@ -95,7 +95,7 @@ while not done:
 
     # Horizontal
     ray1 = (255, 0, 0)
-    rayo1 = (object_pos[0]+FObj[0]*(r/((FObj[0])**2+(FObj[1])**2)**(1/2)), object_pos[1]+FObj[1]*(r/((FObj[0])**2+(FObj[1])**2)**(1/2)))
+    rayo1 = (C[0]+(2*(object_pos[0]**2 - C[0]**2 + r**2 -object_pos[1]**2 + 2*C[1]*object_pos[1]))**(1/2), object_pos[1])
     pygame.draw.line(canvas, ray1, object_pos, rayo1)
     # pygame.draw.line(canvas, ray1, F, rayo1) # la reflexion del rayo 1
 
