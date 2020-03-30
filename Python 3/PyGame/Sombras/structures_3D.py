@@ -24,6 +24,8 @@ class Plane(object):
             # x
             if x == "x":
                 x = 1
+            elif x == "-x":
+                x = -1
             else:
                 x = x[:-1]
                 if x[0] == "+":

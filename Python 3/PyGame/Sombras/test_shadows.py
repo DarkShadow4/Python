@@ -100,7 +100,7 @@ class Shadow(object):
 
 
 
-world = World(size, size, (255, 255, 255), structures_3D.Plane(equation="0x +y +z -100")) # structures_3D.Plane(equation="x+0+z=0")
+world = World(size, size, (255, 255, 255), structures_3D.Plane(equation="0x +y +0z -500")) # structures_3D.Plane(equation="x+0+z=0")
 cube_nodes = [structures_3D.Node(x, y, z) for x in (0, 50) for y in (0, 50) for z in (0, 50)]
 
 # for node in cube_nodes:
