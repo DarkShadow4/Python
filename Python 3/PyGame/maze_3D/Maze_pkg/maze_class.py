@@ -1,4 +1,5 @@
-import pygame, sys, maze_builder, random
+import pygame, sys, random
+from . import maze_builder
 
 class Maze(object):
     def __init__(self, width, height, grid_length, penalizacion = 0.9): # width and height of the window and the grid size (x, y) so there would be a maximum number of nodes which would be x*y

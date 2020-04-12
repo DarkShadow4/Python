@@ -1,4 +1,5 @@
-import pygame, sys, structures_3D
+import pygame, sys
+from . import structures_3D
 
 class Projection(object):
     def __init__(self, width, height):
