@@ -24,6 +24,8 @@ class Plane(object):
             # x
             if x == "x":
                 x = 1
+            elif x == "-x":
+                x = -1
             else:
                 x = x[:-1]
                 if x[0] == "+":
@@ -223,40 +225,3 @@ def vec_v1xv2(v1, v2):
     z = ((v1.x*v2.y)-(v1.y*v2.x))
     resultado = Vector(x, y, z)
     return(resultado)
-
-# nodes = [
-#     Node(10, 10, 10),
-#     Node(20, 10, 10),
-#     Node(10, 20, 10),
-#     Node(20, 20, 10),
-#     Node(10, 10, 20),
-#     Node(20, 10, 20),
-#     Node(10, 20, 20),
-#     Node(20, 20, 20)
-# ]
-#
-# edges = [
-#     Edge(nodes[0], nodes[1]),
-#     Edge(nodes[0], nodes[2]),
-#     Edge(nodes[3], nodes[1]),
-#     Edge(nodes[3], nodes[2]),
-#
-#     Edge(nodes[4], nodes[5]),
-#     Edge(nodes[4], nodes[6]),
-#     Edge(nodes[7], nodes[5]),
-#     Edge(nodes[7], nodes[6]),
-#
-#     Edge(nodes[4], nodes[0]),
-#     Edge(nodes[5], nodes[1]),
-#     Edge(nodes[6], nodes[2]),
-#     Edge(nodes[7], nodes[3])
-#
-# ]
-#
-# cube = Object(nodes, edges)
-
-#cube
-# cube_nodes = [(x,y,z) for x in (0,1) for y in (0,1) for z in (0,1)]
-# cube_edges = [(n,n+4) for n in range(0,4)] + [(n,n+1) for n in range(0,8,2)] + [(n,n+2) for n in (0,1,4,5)]
-
-# cube2 = Object(cube_nodes, cube_edges)
