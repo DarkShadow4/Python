@@ -48,17 +48,63 @@ class Entity(object):
         self.node_color = node_color
         self.edge_color = edge_color
         self.node_radius = node_radius
-        self.nodes = np.zeros((0, 4))
+        # self.nodes = np.zeros((0, 4))
         self.edges = []
+####
+        self.initial_nodes = np.zeros((0, 4))
+        print("self.initial_nodes is self.nodes: {0}".format(self.initial_nodes is self.nodes))
+        self.totalTransformations = {
+        "T":[   [1, 0, 0, 0],
+                [0, 1, 0, 0],
+                [0, 0, 1, 0],
+                [0, 0, 0, 1]    ],
 
+        "RX":[  [1, 0, 0, 0],
+                [0, 1, 0, 0],
+                [0, 0, 1, 0],
+                [0, 0, 0, 1]    ],
 
+        "RY":[  [1, 0, 0, 0],
+                [0, 1, 0, 0],
+                [0, 0, 1, 0],
+                [0, 0, 0, 1]    ],
+
+        "RZ":[  [1, 0, 0, 0],
+                [0, 1, 0, 0],
+                [0, 0, 1, 0],
+                [0, 0, 0, 1]    ],
+
+        "S":[   [1, 0, 0, 0],
+                [0, 1, 0, 0],
+                [0, 0, 1, 0],
+                [0, 0, 0, 1]    ]
+        }
+####
     def addNodes(self, nodes):
         ones = np.ones((len(nodes), 1))
         nodes = np.hstack((nodes, ones))
-        self.nodes = np.vstack((self.nodes, nodes))
+####
+        self.initial_nodes = np.vstack((self.initial_nodes, nodes))
+        self.nodes = np.dot(self.initial_nodes, self.totalTransformations["RY"])
+        # self.nodes = np.dot(self.nodes, self.totalTransformations["RY"])
+        self.nodes = np.dot(self.nodes, self.totalTransformations["RX"])
+        self.nodes = np.dot(self.nodes, self.totalTransformations["RZ"])
+        self.nodes = np.dot(self.nodes, self.totalTransformations["T"])
+        self.nodes = np.dot(self.nodes, self.totalTransformations["S"])
+
+        # print("self.initial_nodes[0] is self.nodes[0]: {0}".format(self.initial_nodes[0] is self.nodes[0]))
+####
+        # self.nodes = np.vstack((self.nodes, nodes))
+
 
     def addEdges(self, edges):
         self.edges += edges
 
-    def transform(self, matrix):
-        self.nodes = np.dot(self.nodes, matrix)
+    def transform(self, matrix, type):
+        self.totalTransformations[type] = np.dot(self.totalTransformations[type], matrix)
+        self.nodes = np.dot(self.initial_nodes, self.totalTransformations["RY"])
+        # self.nodes = np.dot(self.nodes, self.totalTransformations["RY"])
+        self.nodes = np.dot(self.nodes, self.totalTransformations["RX"])
+        self.nodes = np.dot(self.nodes, self.totalTransformations["RZ"])
+        self.nodes = np.dot(self.nodes, self.totalTransformations["T"])
+        self.nodes = np.dot(self.nodes, self.totalTransformations["S"])

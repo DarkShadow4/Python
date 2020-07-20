@@ -18,6 +18,7 @@ class Viewer(object):
 
     def addObjects(self, objects):
         for obj in objects:
+            print (obj.name)
             self.objects[obj.name] = obj
 
     def run(self):
@@ -85,17 +86,15 @@ class Viewer(object):
     def translateAll(self, movement):
         matrix = entities.translationMatrix(*movement)
         for obj in self.objects.values():
-            obj.transform(matrix)
+            obj.transform(matrix, "T")
 
     def scaleAll(self, scalar):
         matrix = entities.scalingMatrix(scalar, scalar, scalar)
         for obj in self.objects.values():
-            obj.transform(matrix)
+            obj.transform(matrix, "S")
 
     def rotate(self, radians, axis, exclude=None):
         rotateMatrix = "rotate"+axis.title()+"matrix"
         matrix = getattr(entities, rotateMatrix)(radians)
         for obj in self.objects.values():
-            obj.transform(matrix)
-
-import string
+            obj.transform(matrix, "R"+axis.title())
