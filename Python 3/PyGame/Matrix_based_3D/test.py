@@ -2,6 +2,12 @@ import sys, os
 sys.path.append(os.getcwd())
 import entities, viewer
 import numpy as np
+import importlib
+
+importlib.reload(entities)
+importlib.reload(viewer)
+
+
 cube = entities.Entity(node_color=(255, 255, 255), name="cube")
 cube_nodes = [(x, y, z) for x in (-75, 75) for y in (-75, 75) for z in (-75, 75)]
 cube.addNodes(np.array(cube_nodes))
@@ -17,4 +23,16 @@ plain.addEdges(plain_edges)
 
 yes = viewer.Viewer(500, 500)
 yes.addObjects([cube, plain])
+
+objects = ["context", "cube", "plane"]
+
+#buttons
+buttons = []
+font_size = 20
+for i in range(len(objects)):
+    buttons.append(viewer.Button(id=i, background_color=(147, 255, 0), text_color=(255, 0, 247), top_left = (0, i*(font_size+2)), text=objects[i], font_size = font_size))
+
+
+yes.addButtons(buttons)
+
 yes.run()
