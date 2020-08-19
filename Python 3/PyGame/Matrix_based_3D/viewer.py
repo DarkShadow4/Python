@@ -50,6 +50,8 @@ class Viewer(object):
             pygame.K_a: (lambda x: x.translateFocus([-10, 0, 0])),
             pygame.K_s: (lambda x: x.translateFocus([0, 10, 0])),
             pygame.K_d: (lambda x: x.translateFocus([10, 0, 0])),
+            pygame.K_LSHIFT: (lambda x: x.translateFocus([0, 0, -10])),
+            pygame.K_LCTRL: (lambda x: x.translateFocus([0, 0, 10])),
             pygame.K_INSERT: (lambda x: x.scaleFocus(1.25)),
             pygame.K_DELETE: (lambda x: x.scaleFocus(0.8)),
             pygame.K_q: (lambda x: x.rotateFocus(0.1, "z")), # counterclockwise
