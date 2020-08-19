@@ -6,8 +6,8 @@ import importlib
 
 importlib.reload(entities)
 importlib.reload(viewer)
-
-
+#test
+#test
 cube = entities.Entity(node_color=(255, 255, 255), name="cube")
 cube_nodes = [(x, y, z) for x in (-75, 75) for y in (-75, 75) for z in (-75, 75)]
 cube.addNodes(np.array(cube_nodes))
